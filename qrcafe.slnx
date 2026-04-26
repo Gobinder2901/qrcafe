@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="qrcafe/qrcafe.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>
