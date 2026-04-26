@@ -11,7 +11,7 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
         if (prevItemId.current === itemId) return;
         prevItemId.current = itemId;
         let cancelled = false;
-        fetch(`http://localhost:5021/api/item/${itemId}`)
+        fetch(`https://scannermenu-api.onrender.com/api/item/${itemId}`)
             .then(res => res.json())
             .then(data => {
                 if (!cancelled) {
@@ -184,7 +184,7 @@ function App() {
         }
 
         let cancelled = false;
-        fetch(`http://localhost:5021/api/table?token=${token}`)
+        fetch(`https://scannermenu-api.onrender.com/api/table?token=${token}`)
             .then(res => {
                 if (!res.ok) throw new Error("not found");
                 return res.json();
@@ -204,7 +204,7 @@ function App() {
     useEffect(() => {
         if (!tableInfo) return;
         let cancelled = false;
-        fetch(`http://localhost:5021/api/menu?branch_id=${tableInfo.branch_id}`)
+        fetch(`https://scannermenu-api.onrender.com/api/menu?branch_id=${tableInfo.branch_id}`)
             .then(res => res.json())
             .then(data => {
                 if (cancelled) return;
@@ -246,7 +246,7 @@ function App() {
             items: cart.map(c => ({ item_id: c.id, quantity: c.qty, price: c.price }))
         };
         try {
-            const res = await fetch("http://localhost:5021/api/order", {
+            const res = await fetch("https://scannermenu-api.onrender.com/api/order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData)
