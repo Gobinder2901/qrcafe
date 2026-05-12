@@ -252,7 +252,7 @@ function App() {
                 body: JSON.stringify(orderData)
             });
             const data = await res.json();
-            alert("Order placed! Order #" + data.order_no);
+            alert("Order successfully placed Order #" + data.order_no);
             setCart([]);
         } catch (err) {
             alert("Error placing order");
