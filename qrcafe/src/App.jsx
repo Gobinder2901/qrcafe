@@ -145,6 +145,186 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
     );
 }
 
+function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConfirm, placingOrder, orderResult, specialInstructions, setSpecialInstructions }) {
+    const subtotal = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+    const cgst = +(subtotal * 0.025).toFixed(2);
+    const sgst = +(subtotal * 0.025).toFixed(2);
+    const serviceCharge = +(subtotal * 0.05).toFixed(2);
+    const grandTotal = +(subtotal + cgst + sgst + serviceCharge).toFixed(2);
+    const totalItems = cart.reduce((sum, c) => sum + c.qty, 0);
+
+    // Success view
+    if (orderResult) {
+        return (
+            <div className="summary-page">
+                <div className="order-success">
+                    <div className="success-icon" style={{ color: themeColor, borderColor: themeColor }}>✓</div>
+                    <h1 className="success-title">Order placed</h1>
+                    <p className="success-sub">Your order is being prepared</p>
+                    <div className="success-order-no" style={{ color: themeColor }}>
+                        #{orderResult.order_no}
+                    </div>
+                    <div className="success-meta">
+                        <div><span>Table</span><strong>{tableInfo.table_number}</strong></div>
+                        <div><span>Items</span><strong>{totalItems || orderResult.total_items || "—"}</strong></div>
+                        <div><span>Total</span><strong>₹ {Number(orderResult.total_amount || grandTotal).toFixed(2)}</strong></div>
+                    </div>
+                    <p className="success-note">
+                        Payment will be collected at the counter or via the payment page (coming soon).
+                    </p>
+                    <button
+                        className="confirm-btn"
+                        style={{ background: themeColor }}
+                        onClick={onBack}>
+                        Order something else
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Empty cart fallback
+    if (cart.length === 0) {
+        return (
+            <div className="summary-page">
+                <div className="order-success">
+                    <div className="success-icon" style={{ color: "#555", borderColor: "#333" }}>○</div>
+                    <h1 className="success-title">Your cart is empty</h1>
+                    <p className="success-sub">Add a few dishes from the menu to continue</p>
+                    <button
+                        className="confirm-btn"
+                        style={{ background: themeColor }}
+                        onClick={onBack}>
+                        ← Back to menu
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="summary-page">
+            <div className="summary-header">
+                <button className="back-btn" onClick={onBack} disabled={placingOrder}>
+                    ← Back to menu
+                </button>
+                <span className="restaurant-tag" style={{ color: themeColor }}>
+                    {tableInfo.restaurant_name}
+                </span>
+                <h1 className="summary-title">Review your order</h1>
+                <div className="summary-table-badge"
+                    style={{ background: `${themeColor}18`, borderColor: `${themeColor}55` }}>
+                    <span className="table-dot" style={{ background: themeColor }} />
+                    <span style={{ color: themeColor }}>
+                        {tableInfo.table_number} · Dine in
+                    </span>
+                </div>
+            </div>
+
+            <div className="summary-section">
+                <div className="section-label" style={{ color: themeColor }}>
+                    YOUR ITEMS · {totalItems}
+                </div>
+                <div className="summary-items">
+                    {cart.map(c => (
+                        <div className="summary-item" key={c.key}>
+                            <div className="summary-item-main">
+                                <div className="summary-item-name">{c.name}</div>
+                                {c.addons && c.addons.length > 0 && (
+                                    <div className="summary-item-addons">
+                                        {c.addons.map(a => a.name).join(' · ')}
+                                    </div>
+                                )}
+                                <div className="summary-item-price-row">
+                                    <span className="summary-unit-price">₹ {c.price} each</span>
+                                    <div className="summary-qty-ctrl">
+                                        <button
+                                            style={{ color: themeColor }}
+                                            onClick={() => onUpdateQty(c.key, -1)}
+                                            disabled={placingOrder}>−</button>
+                                        <span>{c.qty}</span>
+                                        <button
+                                            style={{ color: themeColor }}
+                                            onClick={() => onUpdateQty(c.key, +1)}
+                                            disabled={placingOrder}>+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="summary-item-total" style={{ color: themeColor }}>
+                                ₹ {c.price * c.qty}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="summary-section">
+                <div className="section-label" style={{ color: themeColor }}>
+                    SPECIAL INSTRUCTIONS
+                </div>
+                <textarea
+                    className="instructions-input"
+                    placeholder="Any allergies, spice level, or special requests for the chef?"
+                    value={specialInstructions}
+                    onChange={e => setSpecialInstructions(e.target.value)}
+                    disabled={placingOrder}
+                    rows={3}
+                />
+            </div>
+
+            <div className="summary-section">
+                <div className="section-label" style={{ color: themeColor }}>
+                    BILL DETAILS
+                </div>
+                <div className="bill-rows">
+                    <div className="bill-row">
+                        <span>Item subtotal</span>
+                        <span>₹ {subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="bill-row">
+                        <span>CGST (2.5%)</span>
+                        <span>₹ {cgst.toFixed(2)}</span>
+                    </div>
+                    <div className="bill-row">
+                        <span>SGST (2.5%)</span>
+                        <span>₹ {sgst.toFixed(2)}</span>
+                    </div>
+                    <div className="bill-row">
+                        <span>Service charge (5%)</span>
+                        <span>₹ {serviceCharge.toFixed(2)}</span>
+                    </div>
+                    <div className="bill-row total-row">
+                        <span>Grand total</span>
+                        <span style={{ color: themeColor }}>₹ {grandTotal.toFixed(2)}</span>
+                    </div>
+                </div>
+                <p className="bill-note">
+                    Inclusive of all taxes · Service charge is optional and discretionary
+                </p>
+            </div>
+
+            <div className="summary-footer-spacer" />
+            <div className="summary-footer">
+                <div className="summary-footer-inner">
+                    <div className="summary-footer-info">
+                        <span className="summary-footer-count">
+                            {totalItems} {totalItems === 1 ? "item" : "items"}
+                        </span>
+                        <span className="summary-footer-total">₹ {grandTotal.toFixed(2)}</span>
+                    </div>
+                    <button
+                        className="confirm-btn"
+                        style={{ background: themeColor, opacity: placingOrder ? 0.6 : 1 }}
+                        onClick={() => onConfirm(grandTotal)}
+                        disabled={placingOrder}>
+                        {placingOrder ? "Placing order..." : "Confirm order →"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function InvalidToken() {
     return (
         <div className="invalid-screen">
@@ -171,14 +351,18 @@ function App() {
     const [activeCategory, setActiveCategory] = useState(null);
     const [openItemId, setOpenItemId] = useState(null);
 
+    // Summary / order state
+    const [view, setView] = useState("menu");          // "menu" | "summary"
+    const [placingOrder, setPlacingOrder] = useState(false);
+    const [orderResult, setOrderResult] = useState(null);
+    const [specialInstructions, setSpecialInstructions] = useState("");
+
     // Step 1: resolve token → table info
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
 
-        // read token synchronously — no setState needed before the fetch
         if (!token) {
-            // defer to next tick to avoid synchronous setState in effect body
             const t = setTimeout(() => setTokenStatus("invalid"), 0);
             return () => clearTimeout(t);
         }
@@ -236,14 +420,36 @@ function App() {
     const total = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
     const totalItems = cart.reduce((sum, c) => sum + c.qty, 0);
 
-    const placeOrder = async () => {
-        if (!tableInfo) return;
+    // ── Summary navigation ──
+    const goToSummary = () => {
+        if (cart.length === 0) return;
+        setOrderResult(null);
+        setView("summary");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const updateQty = (key, delta) => {
+        setCart(prev => prev
+            .map(c => c.key === key ? { ...c, qty: c.qty + delta } : c)
+            .filter(c => c.qty > 0)
+        );
+    };
+
+    const confirmOrder = async (grandTotal) => {
+        if (!tableInfo || placingOrder) return;
+        setPlacingOrder(true);
         const orderData = {
             restaurant_id: tableInfo.restaurant_id,
             branch_id: tableInfo.branch_id,
             table_id: tableInfo.table_id,
-            total_amount: total,
-            items: cart.map(c => ({ item_id: c.id, quantity: c.qty, price: c.price }))
+            total_amount: grandTotal,
+            special_instructions: specialInstructions,
+            items: cart.map(c => ({
+                item_id: c.id,
+                quantity: c.qty,
+                price: c.price,
+                addons: c.addons ? c.addons.map(a => a.id) : []
+            }))
         };
         try {
             const res = await fetch("https://scannermenu-api.onrender.com/api/order", {
@@ -252,12 +458,21 @@ function App() {
                 body: JSON.stringify(orderData)
             });
             const data = await res.json();
-            alert("Order successfully placed Order #" + data.order_no);
+            setOrderResult(data);
             setCart([]);
+            setSpecialInstructions("");
         } catch (err) {
-            alert("Error placing order");
+            alert("Error placing order. Please try again.");
             console.error(err);
+        } finally {
+            setPlacingOrder(false);
         }
+    };
+
+    const backToMenu = () => {
+        setView("menu");
+        setOrderResult(null);
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const scrollToCategory = (category) => {
@@ -270,6 +485,24 @@ function App() {
     if (tokenStatus === "invalid") return <InvalidToken />;
 
     const themeColor = tableInfo?.theme_color || "#D4AF37";
+
+    // Summary view
+    if (view === "summary") {
+        return (
+            <OrderSummary
+                cart={cart}
+                tableInfo={tableInfo}
+                themeColor={themeColor}
+                onBack={backToMenu}
+                onUpdateQty={updateQty}
+                onConfirm={confirmOrder}
+                placingOrder={placingOrder}
+                orderResult={orderResult}
+                specialInstructions={specialInstructions}
+                setSpecialInstructions={setSpecialInstructions}
+            />
+        );
+    }
 
     return (
         <div className="app">
@@ -384,7 +617,7 @@ function App() {
                         </div>
                         <button className="place-order-btn"
                             style={{ background: themeColor }}
-                            onClick={placeOrder}>
+                            onClick={goToSummary}>
                             Place order →
                         </button>
                     </div>
