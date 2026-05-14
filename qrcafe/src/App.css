@@ -514,12 +514,16 @@ body {
 
 .sticky-inner {
     width: 100%;
+    display: flex;
+    justify-content: space-between; /* 🔥 THIS FIXES IT */
+    align-items: center;
 }
 
 .sticky-info {
     display: flex;
     flex-direction: column;
-    gap: 2px
+    gap: 2px;
+    align-items: flex-start; /* 🔥 THIS FIXES LEFT ALIGN */
 }
 
 .sticky-count {
@@ -537,6 +541,7 @@ body {
     background: var(--gold);
     color: var(--bg);
     border: none;
+    margin-left: auto;
     border-radius: 25px;
     padding: clamp(10px,1.2vw,14px) clamp(20px,2.5vw,32px);
     font-size: clamp(13px,1.2vw,15px);
