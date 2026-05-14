@@ -48,9 +48,9 @@
               "RelativeDocumentMoniker": "qrcafe\\src\\App.css",
               "ToolTip": "C:\\Users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\App.css",
               "RelativeToolTip": "qrcafe\\src\\App.css",
-              "ViewState": "AgIAAOUBAAAAAAAAAAAvwPIBAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAIIIAAAAAAAAAAAAAA0HAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2026-05-04T17:06:39.26Z",
+              "WhenOpened": "2026-05-14T03:48:54.188Z",
               "EditorCaption": ""
             },
             {
@@ -63,7 +63,7 @@
               "RelativeToolTip": "qrcafe\\src\\main.jsx",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2026-05-04T17:06:42.86Z"
+              "WhenOpened": "2026-05-14T03:48:54.22Z"
             },
             {
               "$type": "Document",
@@ -75,7 +75,7 @@
               "RelativeToolTip": "qrcafe\\index.html",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
-              "WhenOpened": "2026-05-07T19:26:04.537Z"
+              "WhenOpened": "2026-05-14T03:48:54.223Z"
             },
             {
               "$type": "Document",
@@ -87,7 +87,7 @@
               "RelativeToolTip": "qrcafe\\vite.config.js",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2026-05-07T19:25:58.988Z"
+              "WhenOpened": "2026-05-14T03:48:54.225Z"
             },
             {
               "$type": "Document",
@@ -99,7 +99,7 @@
               "RelativeToolTip": "qrcafe\\src\\config.js",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2026-05-05T20:26:06.913Z"
+              "WhenOpened": "2026-05-14T03:48:54.227Z"
             },
             {
               "$type": "Document",
@@ -111,7 +111,7 @@
               "RelativeToolTip": "qrcafe\\src\\index.css",
               "ViewState": "AgIAAFgAAAAAAAAAAAAmwGIAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2026-05-04T17:06:33.655Z"
+              "WhenOpened": "2026-05-14T03:48:54.228Z"
             },
             {
               "$type": "Document",
@@ -123,7 +123,7 @@
               "RelativeToolTip": "qrcafe\\src\\App.jsx",
               "ViewState": "AgIAADYFAAAAAAAAAAAhwDwFAABLAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
-              "WhenOpened": "2026-05-04T17:06:25.185Z"
+              "WhenOpened": "2026-05-14T03:48:54.23Z"
             }
           ]
         }
