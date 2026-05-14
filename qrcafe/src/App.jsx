@@ -113,7 +113,7 @@ function OrderTrackerSheet({ orders, themeColor, onClose }) {
                                     <div className="tracker-order-header">
                                         <div className="tracker-order-left">
                                             <span className="tracker-order-no" style={{ color: themeColor }}>
-                                                {order.order_no ? `Order #${order.order_no}` : "Order under review"}
+                                                {order.order_no ? `Order #${order.order_no}` : "Order under review : "}
                                             </span>
 
                                             <span className="tracker-order-status">

@@ -584,16 +584,26 @@ body {
 
 /* STEP CIRCLES */
 .tracker-stage-circle {
-    margin-right: 8px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%; /* makes perfect circle */
+    border: 2px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #aaa;
+    background: transparent;
 }
 
 /* STEP TEXT (NEW FIX) */
 .tracker-steps-text {
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
     font-size: 11px;
-    color: var(--text-muted);
+    color: #888;
+    margin-top: 6px;
 }
 
 /* PAYMENT TEXT */
@@ -1999,7 +2009,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 12px;
+    margin-top: 10px;
+    gap: 6px;
 }
 
 .tracker-stage {
@@ -2009,22 +2020,41 @@ body {
     flex: 1;
 }
 
+.tracker-stage-circle.active {
+    color: #0a0a0a;
+}
+
 .tracker-stage-circle {
-    margin: 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%; /* makes perfect circle */
+    border: 2px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #aaa;
+    background: transparent;
 }
 
 .tracker-stage-line {
     flex: 1;
     height: 2px;
     background: #333;
+    margin: 0 4px;
 }
+
+    .tracker-stage-line.active {
+        background: #D4AF37; /* or your theme color */
+    }
 
 .tracker-steps-text {
     display: flex;
     justify-content: space-between;
-    margin-top: 6px;
     font-size: 11px;
-    color: #777;
+    color: #888;
+    margin-top: 6px;
 }
     /* ─── CONTINUATION (FIXED + COMPLETE) ─── */
     /* ACTION CARDS */
