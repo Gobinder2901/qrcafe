@@ -90,9 +90,7 @@ function OrderTrackerSheet({ orders, themeColor, onClose }) {
 
     const [selectedOrder, setSelectedOrder] = React.useState(null);
 
-    const openOrderDashboard = (order) => {
-        setSelectedOrder(order);
-    };
+    
 
     return (
         <div className="sheet-backdrop" onClick={onClose}>
@@ -109,108 +107,69 @@ function OrderTrackerSheet({ orders, themeColor, onClose }) {
                             const isPaid = order.payment_status === "paid";
 
                             return (
-                                <div
-                                    key={order.order_id}
-                                    className="tracker-order-card"
-                                    
-                                >
+                                <div key={order.order_id} className="tracker-order-card">
 
                                     {/* HEADER */}
-                                    <div
-                                        key={order.order_id}
-                                        className="tracker-order-card"
-                                        
-                                    >
-
-                                        {/* HEADER */}
-                                        <div className="tracker-order-header">
-
-                                            <div className="tracker-order-left">
-                                                <span className="tracker-order-no" style={{ color: themeColor }}>
-                                                    {order.order_no ? `Order #${order.order_no}` : "Order under review"}
-                                                </span>
-
-                                                <span className="tracker-order-status">
-                                                    {order.status}
-                                                </span>
-                                            </div>
-
-                                            <span className="tracker-order-amount">
-                                                ₹ {Number(order.total_amount).toFixed(2)}
+                                    <div className="tracker-order-header">
+                                        <div className="tracker-order-left">
+                                            <span className="tracker-order-no" style={{ color: themeColor }}>
+                                                {order.order_no ? `Order #${order.order_no}` : "Order under review"}
                                             </span>
 
+                                            <span className="tracker-order-status">
+                                                {order.status}
+                                            </span>
                                         </div>
 
-                                        {/* STAGES */}
-                                        <div className="tracker-stages">
+                                        <span className="tracker-order-amount">
+                                            ₹ {Number(order.total_amount).toFixed(2)}
+                                        </span>
+                                    </div>
 
-                                            {STAGES.map((s, i) => (
-                                                <React.Fragment key={s.id}>
+                                    {/* STAGES */}
+                                    <div className="tracker-stages">
+                                        {STAGES.map((s, i) => (
+                                            <React.Fragment key={s.id}>
 
-                                                    <div className="tracker-stage">
-                                                        <div
-                                                            className={
-                                                                "tracker-stage-circle" +
-                                                                (i <= stageIdx ? " active" : "")
-                                                            }
-                                                            style={
-                                                                i <= stageIdx
-                                                                    ? {
-                                                                        background: themeColor,
-                                                                        borderColor: themeColor,
-                                                                        color: "#0a0a0a"
-                                                                    }
-                                                                    : {}
-                                                            }
-                                                        >
-                                                            {i < stageIdx ? "✓" : i + 1}
-                                                        </div>
+                                                <div className="tracker-stage">
+                                                    <div
+                                                        className={"tracker-stage-circle" + (i <= stageIdx ? " active" : "")}
+                                                        style={
+                                                            i <= stageIdx
+                                                                ? {
+                                                                    background: themeColor,
+                                                                    borderColor: themeColor,
+                                                                    color: "#0a0a0a"
+                                                                }
+                                                                : {}
+                                                        }
+                                                    >
+                                                        {i < stageIdx ? "✓" : i + 1}
                                                     </div>
+                                                </div>
 
-                                                    {i < STAGES.length - 1 && (
-                                                        <div
-                                                            className={
-                                                                "tracker-stage-line" +
-                                                                (i < stageIdx ? " active" : "")
-                                                            }
-                                                            style={
-                                                                i < stageIdx
-                                                                    ? { background: themeColor }
-                                                                    : {}
-                                                            }
-                                                        />
-                                                    )}
+                                                {i < STAGES.length - 1 && (
+                                                    <div
+                                                        className={"tracker-stage-line" + (i < stageIdx ? " active" : "")}
+                                                        style={i < stageIdx ? { background: themeColor } : {}}
+                                                    />
+                                                )}
 
-                                                </React.Fragment>
-                                            ))}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
 
-                                        </div>
-
-                                        {/* LABELS (THIS FIXES BROKEN TEXT) */}
-                                        <div className="tracker-steps-text">
-                                            <span>Placed</span>
-                                            <span>Confirmed</span>
-                                            <span>Cooking</span>
-                                            <span>Served</span>
-                                        </div>
-
-                                        {/* FOOTER */}
-                                        <div className="tracker-order-footer">
-                                            <span className={"tracker-paid-tag" + (isPaid ? " paid" : "")}>
-                                                {isPaid ? "✓ Paid" : "Payment pending"}
-                                            </span>
-                                        </div>
-
+                                    {/* LABELS */}
+                                    <div className="tracker-steps-text">
+                                        <span>Placed</span>
+                                        <span>Confirmed</span>
+                                        <span>Cooking</span>
+                                        <span>Served</span>
                                     </div>
 
                                     {/* FOOTER */}
                                     <div className="tracker-order-footer">
-                                        <span
-                                            className={
-                                                "tracker-paid-tag" +
-                                                (isPaid ? " paid" : "")
-                                            }
-                                        >
+                                        <span className={"tracker-paid-tag" + (isPaid ? " paid" : "")}>
                                             {isPaid ? "✓ Paid" : "Payment pending"}
                                         </span>
                                     </div>
@@ -1008,6 +967,8 @@ function App() {
         return () => { cancelled = true; };
     }, []);
 
+    
+
     // Step 2: load menu
     useEffect(() => {
         if (!tableInfo) return;
@@ -1048,6 +1009,11 @@ function App() {
         const id = setInterval(fetchActive, 5000);
         return () => { cancelled = true; clearInterval(id); };
     }, [tableInfo]);
+
+
+    useEffect(() => {
+        document.body.style.overflow = showTracker ? "hidden" : "auto";
+    }, [showTracker]);
 
     // Sync orderResult with latest active-order data (status updates etc.)
     useEffect(() => {
