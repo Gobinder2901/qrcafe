@@ -1875,20 +1875,11 @@ body {
 /* ─── ORDER TRACKER MINI (persistent bottom bar) ─── */
 .tracker-mini {
     position: fixed;
-    bottom: 20px;
+    bottom: auto;
+    top: 90px; /* 👈 move to top */
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 420px;
-    padding: 12px 16px;
-    border-radius: 30px;
-    background: #111;
-    border: 1px solid #333;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 999;
-    cursor: pointer;
+    z-index: 150;
 }
 
     .tracker-mini:hover {

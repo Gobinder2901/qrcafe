@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef} from "react";
+import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import React from "react";
 
@@ -1327,15 +1327,7 @@ function App() {
             <>
                 {body}
 
-                {/* MINI BAR (ONLY WHEN SHEET IS CLOSED) */}
-                {trackerOnScreen && !showTracker && (
-                    <OrderTrackerMini
-                        orders={activeOrders}
-                        themeColor={themeColor}
-                        onClick={() => setShowTracker(true)}
-                        bottomOffset={0}
-                    />
-                )}
+                
 
                 {/* FULL SHEET */}
                 {showTracker && (
@@ -1350,7 +1342,7 @@ function App() {
             </>
         );
     }
-
+    const isMenuPage = view === "menu" && !openItemId;
     // ── Menu view ──
     const cartBarBottom = trackerOnScreen ? 60 : 0;
     return (
@@ -1467,12 +1459,12 @@ function App() {
                 </div>
             )}
 
-            {trackerOnScreen && !showTracker && (
+            {trackerOnScreen && isMenuPage && !showTracker && (
                 <OrderTrackerMini
                     orders={activeOrders}
                     themeColor={themeColor}
                     onClick={() => setShowTracker(true)}
-                    bottomOffset={0}
+                    bottomOffset={80}
                 />
             )}
 
