@@ -545,6 +545,65 @@ body {
         background: var(--gold-dark)
     }
 
+/* ORDER CARD IMPROVEMENT */
+.tracker-order-card {
+    background: #141414;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+    .tracker-order-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--gold);
+    }
+
+/* HEADER */
+.tracker-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* TITLE */
+.tracker-order-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gold);
+}
+
+/* AMOUNT */
+.tracker-order-amount {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* STEP CIRCLES */
+.tracker-stage-circle {
+    margin-right: 8px;
+}
+
+/* STEP TEXT (NEW FIX) */
+.tracker-steps-text {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* PAYMENT TEXT */
+.tracker-payment {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #f0c040;
+    font-weight: 500;
+}
+
 /* ─── BOTTOM SHEET ─── */
 .sheet-backdrop {
     position: fixed;

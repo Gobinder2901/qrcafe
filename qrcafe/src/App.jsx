@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef, Fragment } from "react";
+import { useEffect, useState, useRef} from "react";
 import "./App.css";
+import React from "react";
 
 const API_BASE = "https://scannermenu-api.onrender.com";
 
@@ -43,12 +44,12 @@ function HeroCarousel({ images, current }) {
 // ============================================================
 // ORDER TRACKER — persistent bottom bar
 // ============================================================
-const STAGES = [
-    { id: "awaiting", label: "Placed" },
-    { id: "confirmed", label: "Confirmed" },
-    { id: "cooking", label: "Cooking" },
-    { id: "served", label: "Served" }
-];
+<div className="tracker-steps-text">
+    <span>Placed</span>
+    <span>Confirmed</span>
+    <span>Cooking</span>
+    <span>Served</span>
+</div>
 
 function OrderTrackerMini({ orders, themeColor, onClick, bottomOffset }) {
     if (!orders || orders.length === 0) return null;
@@ -82,11 +83,27 @@ function OrderTrackerMini({ orders, themeColor, onClick, bottomOffset }) {
 // ============================================================
 // ORDER TRACKER SHEET — full progress with 4 stages
 // ============================================================
+
+const STAGES = [
+    { id: "placed", label: "Placed" },
+    { id: "confirmed", label: "Confirmed" },
+    { id: "cooking", label: "Cooking" },
+    { id: "served", label: "Served" }
+];
+
 function OrderTrackerSheet({ orders, themeColor, onClose }) {
+
+    const [selectedOrder, setSelectedOrder] = React.useState(null);
+
+    const openOrderDashboard = (order) => {
+        setSelectedOrder(order);
+    };
+
     return (
         <div className="sheet-backdrop" onClick={onClose}>
             <div className="bottom-sheet tracker-sheet" onClick={e => e.stopPropagation()}>
                 <div className="sheet-handle" />
+
                 <div className="sheet-scroll">
                     <div className="sheet-body">
                         <h2 className="tracker-sheet-title">Your orders</h2>
@@ -95,50 +112,136 @@ function OrderTrackerSheet({ orders, themeColor, onClose }) {
                         {orders.map(order => {
                             const stageIdx = Math.max(0, STAGES.findIndex(s => s.id === order.status));
                             const isPaid = order.payment_status === "paid";
+
                             return (
-                                <div key={order.order_id} className="tracker-order-card">
+                                <div
+                                    key={order.order_id}
+                                    className="tracker-order-card"
+                                    onClick={() => openOrderDashboard(order)}
+                                >
+
+                                    {/* HEADER */}
                                     <div className="tracker-order-header">
-                                        <span className="tracker-order-no" style={{ color: themeColor }}>
-                                            {order.order_no ? `Order #${order.order_no}` : "Order under review"}
+                                        <div className="tracker-order-left">
+                                            <span
+                                                className="tracker-order-no"
+                                                style={{ color: themeColor }}
+                                            >
+                                                {order.order_no ? `Order #${order.order_no}` : "Order under review"}
+                                            </span>
+
+                                            <span className="tracker-order-status">
+                                                {order.status}
+                                            </span>
+                                        </div>
+
+                                        <span className="tracker-order-amount">
+                                            ₹ {Number(order.total_amount).toFixed(2)}
                                         </span>
-                                        <span className="tracker-order-amount">₹ {Number(order.total_amount).toFixed(2)}</span>
                                     </div>
 
+                                    {/* STAGES */}
                                     <div className="tracker-stages">
                                         {STAGES.map((s, i) => (
-                                            <Fragment key={s.id}>
+                                            <React.Fragment key={s.id}>
                                                 <div className="tracker-stage">
-                                                    <div className={"tracker-stage-circle" + (i <= stageIdx ? " active" : "")}
-                                                        style={i <= stageIdx ? { background: themeColor, borderColor: themeColor, color: "#0a0a0a" } : {}}>
+                                                    <div
+                                                        className={
+                                                            "tracker-stage-circle" +
+                                                            (i <= stageIdx ? " active" : "")
+                                                        }
+                                                        style={
+                                                            i <= stageIdx
+                                                                ? {
+                                                                    background: themeColor,
+                                                                    borderColor: themeColor,
+                                                                    color: "#0a0a0a"
+                                                                }
+                                                                : {}
+                                                        }
+                                                    >
                                                         {i < stageIdx ? "✓" : i + 1}
                                                     </div>
-                                                    <span className={"tracker-stage-label" + (i <= stageIdx ? " active" : "")}>
+
+                                                    <span
+                                                        className={
+                                                            "tracker-stage-label" +
+                                                            (i <= stageIdx ? " active" : "")
+                                                        }
+                                                    >
                                                         {s.label}
                                                     </span>
                                                 </div>
+
                                                 {i < STAGES.length - 1 && (
-                                                    <div className={"tracker-stage-line" + (i < stageIdx ? " active" : "")}
-                                                        style={i < stageIdx ? { background: themeColor } : {}} />
+                                                    <div
+                                                        className={
+                                                            "tracker-stage-line" +
+                                                            (i < stageIdx ? " active" : "")
+                                                        }
+                                                        style={
+                                                            i < stageIdx
+                                                                ? { background: themeColor }
+                                                                : {}
+                                                        }
+                                                    />
                                                 )}
-                                            </Fragment>
+                                            </React.Fragment>
                                         ))}
                                     </div>
 
+                                    {/* FOOTER */}
                                     <div className="tracker-order-footer">
-                                        <span className={"tracker-paid-tag" + (isPaid ? " paid" : "")}>
+                                        <span
+                                            className={
+                                                "tracker-paid-tag" +
+                                                (isPaid ? " paid" : "")
+                                            }
+                                        >
                                             {isPaid ? "✓ Paid" : "Payment pending"}
                                         </span>
                                     </div>
+
                                 </div>
                             );
                         })}
                     </div>
                 </div>
+
+                {/* FOOTER BUTTON */}
                 <div className="sheet-footer">
-                    <button className="confirm-btn" style={{ background: themeColor, width: "100%" }} onClick={onClose}>
+                    <button
+                        className="confirm-btn"
+                        style={{ background: themeColor, width: "100%" }}
+                        onClick={onClose}
+                    >
                         Close
                     </button>
                 </div>
+
+                {/* ORDER POPUP */}
+                {selectedOrder && (
+                    <div className="order-detail-modal" onClick={() => setSelectedOrder(null)}>
+                        <div className="order-detail-box" onClick={e => e.stopPropagation()}>
+
+                            <h3>Order Details</h3>
+
+                            <p><b>Order:</b> #{selectedOrder.order_no || "Pending"}</p>
+                            <p><b>Status:</b> {selectedOrder.status}</p>
+                            <p><b>Total:</b> ₹ {Number(selectedOrder.total_amount).toFixed(2)}</p>
+
+                            <button
+                                className="confirm-btn"
+                                style={{ marginTop: "10px", width: "100%" }}
+                                onClick={() => setSelectedOrder(null)}
+                            >
+                                Close
+                            </button>
+
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );
