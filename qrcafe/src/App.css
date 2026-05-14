@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap');
 
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 /* GLOBAL PAGE LAYOUT FIX */
 .summary-page,
 .action-page,
@@ -496,23 +501,18 @@ body {
     position: fixed;
     bottom: 0;
     left: 0;
-    right: 0;
-    width: 100%;
+    width: 100vw; /* 🔥 FIX */
     padding: 12px 16px;
     background: #111;
     border-top: 1px solid #2a2a2a;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 200;
+    z-index: 300; /* ABOVE EVERYTHING */
 }
 
 .sticky-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between
+    width: 100%;
 }
 
 .sticky-info {
