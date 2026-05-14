@@ -44,12 +44,7 @@ function HeroCarousel({ images, current }) {
 // ============================================================
 // ORDER TRACKER — persistent bottom bar
 // ============================================================
-<div className="tracker-steps-text">
-    <span>Placed</span>
-    <span>Confirmed</span>
-    <span>Cooking</span>
-    <span>Served</span>
-</div>
+
 
 function OrderTrackerMini({ orders, themeColor, onClick, bottomOffset }) {
     if (!orders || orders.length === 0) return null;
@@ -121,73 +116,91 @@ function OrderTrackerSheet({ orders, themeColor, onClose }) {
                                 >
 
                                     {/* HEADER */}
-                                    <div className="tracker-order-header">
-                                        <div className="tracker-order-left">
-                                            <span
-                                                className="tracker-order-no"
-                                                style={{ color: themeColor }}
-                                            >
-                                                {order.order_no ? `Order #${order.order_no}` : "Order under review"}
+                                    <div
+                                        key={order.order_id}
+                                        className="tracker-order-card"
+                                        onClick={() => openOrderDashboard(order)}
+                                    >
+
+                                        {/* HEADER */}
+                                        <div className="tracker-order-header">
+
+                                            <div className="tracker-order-left">
+                                                <span className="tracker-order-no" style={{ color: themeColor }}>
+                                                    {order.order_no ? `Order #${order.order_no}` : "Order under review"}
+                                                </span>
+
+                                                <span className="tracker-order-status">
+                                                    {order.status}
+                                                </span>
+                                            </div>
+
+                                            <span className="tracker-order-amount">
+                                                ₹ {Number(order.total_amount).toFixed(2)}
                                             </span>
 
-                                            <span className="tracker-order-status">
-                                                {order.status}
+                                        </div>
+
+                                        {/* STAGES */}
+                                        <div className="tracker-stages">
+
+                                            {STAGES.map((s, i) => (
+                                                <React.Fragment key={s.id}>
+
+                                                    <div className="tracker-stage">
+                                                        <div
+                                                            className={
+                                                                "tracker-stage-circle" +
+                                                                (i <= stageIdx ? " active" : "")
+                                                            }
+                                                            style={
+                                                                i <= stageIdx
+                                                                    ? {
+                                                                        background: themeColor,
+                                                                        borderColor: themeColor,
+                                                                        color: "#0a0a0a"
+                                                                    }
+                                                                    : {}
+                                                            }
+                                                        >
+                                                            {i < stageIdx ? "✓" : i + 1}
+                                                        </div>
+                                                    </div>
+
+                                                    {i < STAGES.length - 1 && (
+                                                        <div
+                                                            className={
+                                                                "tracker-stage-line" +
+                                                                (i < stageIdx ? " active" : "")
+                                                            }
+                                                            style={
+                                                                i < stageIdx
+                                                                    ? { background: themeColor }
+                                                                    : {}
+                                                            }
+                                                        />
+                                                    )}
+
+                                                </React.Fragment>
+                                            ))}
+
+                                        </div>
+
+                                        {/* LABELS (THIS FIXES BROKEN TEXT) */}
+                                        <div className="tracker-steps-text">
+                                            <span>Placed</span>
+                                            <span>Confirmed</span>
+                                            <span>Cooking</span>
+                                            <span>Served</span>
+                                        </div>
+
+                                        {/* FOOTER */}
+                                        <div className="tracker-order-footer">
+                                            <span className={"tracker-paid-tag" + (isPaid ? " paid" : "")}>
+                                                {isPaid ? "✓ Paid" : "Payment pending"}
                                             </span>
                                         </div>
 
-                                        <span className="tracker-order-amount">
-                                            ₹ {Number(order.total_amount).toFixed(2)}
-                                        </span>
-                                    </div>
-
-                                    {/* STAGES */}
-                                    <div className="tracker-stages">
-                                        {STAGES.map((s, i) => (
-                                            <React.Fragment key={s.id}>
-                                                <div className="tracker-stage">
-                                                    <div
-                                                        className={
-                                                            "tracker-stage-circle" +
-                                                            (i <= stageIdx ? " active" : "")
-                                                        }
-                                                        style={
-                                                            i <= stageIdx
-                                                                ? {
-                                                                    background: themeColor,
-                                                                    borderColor: themeColor,
-                                                                    color: "#0a0a0a"
-                                                                }
-                                                                : {}
-                                                        }
-                                                    >
-                                                        {i < stageIdx ? "✓" : i + 1}
-                                                    </div>
-
-                                                    <span
-                                                        className={
-                                                            "tracker-stage-label" +
-                                                            (i <= stageIdx ? " active" : "")
-                                                        }
-                                                    >
-                                                        {s.label}
-                                                    </span>
-                                                </div>
-
-                                                {i < STAGES.length - 1 && (
-                                                    <div
-                                                        className={
-                                                            "tracker-stage-line" +
-                                                            (i < stageIdx ? " active" : "")
-                                                        }
-                                                        style={
-                                                            i < stageIdx
-                                                                ? { background: themeColor }
-                                                                : {}
-                                                        }
-                                                    />
-                                                )}
-                                            </React.Fragment>
-                                        ))}
                                     </div>
 
                                     {/* FOOTER */}
