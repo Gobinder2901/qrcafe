@@ -1326,14 +1326,26 @@ function App() {
         return (
             <>
                 {body}
-                {trackerOnScreen && (
-                    <OrderTrackerMini orders={activeOrders} themeColor={themeColor}
-                        onClick={() => setShowTracker(true)} bottomOffset={0} />
+
+                {/* MINI BAR (ONLY WHEN SHEET IS CLOSED) */}
+                {trackerOnScreen && !showTracker && (
+                    <OrderTrackerMini
+                        orders={activeOrders}
+                        themeColor={themeColor}
+                        onClick={() => setShowTracker(true)}
+                        bottomOffset={0}
+                    />
                 )}
+
+                {/* FULL SHEET */}
                 {showTracker && (
-                    <OrderTrackerSheet orders={activeOrders} themeColor={themeColor}
-                        onClose={() => setShowTracker(false)} />
+                    <OrderTrackerSheet
+                        orders={activeOrders}
+                        themeColor={themeColor}
+                        onClose={() => setShowTracker(false)}
+                    />
                 )}
+
                 <ToastContainer toasts={toasts} onDismiss={dismissToast} />
             </>
         );
@@ -1455,14 +1467,21 @@ function App() {
                 </div>
             )}
 
-            {trackerOnScreen && (
-                <OrderTrackerMini orders={activeOrders} themeColor={themeColor}
-                    onClick={() => setShowTracker(true)} bottomOffset={0} />
+            {trackerOnScreen && !showTracker && (
+                <OrderTrackerMini
+                    orders={activeOrders}
+                    themeColor={themeColor}
+                    onClick={() => setShowTracker(true)}
+                    bottomOffset={0}
+                />
             )}
 
             {showTracker && (
-                <OrderTrackerSheet orders={activeOrders} themeColor={themeColor}
-                    onClose={() => setShowTracker(false)} />
+                <OrderTrackerSheet
+                    orders={activeOrders}
+                    themeColor={themeColor}
+                    onClose={() => setShowTracker(false)}
+                />
             )}
 
             {openItemId && (
