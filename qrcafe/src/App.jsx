@@ -1,10 +1,151 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Fragment } from "react";
 import "./App.css";
 
 const API_BASE = "https://scannermenu-api.onrender.com";
 
 // ============================================================
-// ITEM DETAIL BOTTOM SHEET
+// TOAST (in-UI popup — replaces browser alerts)
+// ============================================================
+function ToastContainer({ toasts, onDismiss }) {
+    if (toasts.length === 0) return null;
+    return (
+        <div className="toast-container">
+            {toasts.map(t => (
+                <div key={t.id} className={"toast" + (t.kind === "error" ? " toast-error" : "")}
+                    onClick={() => onDismiss(t.id)}>
+                    <div className="toast-icon">{t.icon || "✓"}</div>
+                    <div className="toast-body">
+                        <div className="toast-title">{t.title}</div>
+                        {t.message && <div className="toast-message">{t.message}</div>}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ============================================================
+// HERO IMAGE CAROUSEL (auto-rotates every 4s; text stays static)
+// ============================================================
+function HeroCarousel({ images, current }) {
+    if (!images || images.length === 0) return null;
+    return (
+        <>
+            {images.map((url, i) => (
+                <div key={i}
+                    className={"hero-bg" + (i === current ? " hero-bg-active" : "")}
+                    style={{ backgroundImage: `url('${url}')` }} />
+            ))}
+        </>
+    );
+}
+
+// ============================================================
+// ORDER TRACKER — persistent bottom bar
+// ============================================================
+const STAGES = [
+    { id: "awaiting", label: "Placed" },
+    { id: "confirmed", label: "Confirmed" },
+    { id: "cooking", label: "Cooking" },
+    { id: "served", label: "Served" }
+];
+
+function OrderTrackerMini({ orders, themeColor, onClick, bottomOffset }) {
+    if (!orders || orders.length === 0) return null;
+    const latest = orders[orders.length - 1];
+    const stageLabels = {
+        awaiting: "Under review", confirmed: "Confirmed",
+        cooking: "Cooking", served: "Served"
+    };
+    const label = stageLabels[latest.status] || latest.status;
+    const count = orders.length;
+
+    return (
+        <div className="tracker-mini" style={{ bottom: bottomOffset || 0 }} onClick={onClick}>
+            <div className="tracker-pulse-wrap">
+                <span className="tracker-pulse" style={{ background: themeColor }} />
+                <span className="tracker-pulse-ring" style={{ borderColor: themeColor }} />
+            </div>
+            <div className="tracker-text">
+                <div className="tracker-title">
+                    {count === 1 ? "1 active order" : `${count} active orders`}
+                </div>
+                <div className="tracker-sub">
+                    {latest.order_no ? `#${latest.order_no} · ` : ""}{label}
+                </div>
+            </div>
+            <span className="tracker-arrow" style={{ color: themeColor }}>→</span>
+        </div>
+    );
+}
+
+// ============================================================
+// ORDER TRACKER SHEET — full progress with 4 stages
+// ============================================================
+function OrderTrackerSheet({ orders, themeColor, onClose }) {
+    return (
+        <div className="sheet-backdrop" onClick={onClose}>
+            <div className="bottom-sheet tracker-sheet" onClick={e => e.stopPropagation()}>
+                <div className="sheet-handle" />
+                <div className="sheet-scroll">
+                    <div className="sheet-body">
+                        <h2 className="tracker-sheet-title">Your orders</h2>
+                        <p className="tracker-sheet-sub">Live status from the kitchen</p>
+
+                        {orders.map(order => {
+                            const stageIdx = Math.max(0, STAGES.findIndex(s => s.id === order.status));
+                            const isPaid = order.payment_status === "paid";
+                            return (
+                                <div key={order.order_id} className="tracker-order-card">
+                                    <div className="tracker-order-header">
+                                        <span className="tracker-order-no" style={{ color: themeColor }}>
+                                            {order.order_no ? `Order #${order.order_no}` : "Order under review"}
+                                        </span>
+                                        <span className="tracker-order-amount">₹ {Number(order.total_amount).toFixed(2)}</span>
+                                    </div>
+
+                                    <div className="tracker-stages">
+                                        {STAGES.map((s, i) => (
+                                            <Fragment key={s.id}>
+                                                <div className="tracker-stage">
+                                                    <div className={"tracker-stage-circle" + (i <= stageIdx ? " active" : "")}
+                                                        style={i <= stageIdx ? { background: themeColor, borderColor: themeColor, color: "#0a0a0a" } : {}}>
+                                                        {i < stageIdx ? "✓" : i + 1}
+                                                    </div>
+                                                    <span className={"tracker-stage-label" + (i <= stageIdx ? " active" : "")}>
+                                                        {s.label}
+                                                    </span>
+                                                </div>
+                                                {i < STAGES.length - 1 && (
+                                                    <div className={"tracker-stage-line" + (i < stageIdx ? " active" : "")}
+                                                        style={i < stageIdx ? { background: themeColor } : {}} />
+                                                )}
+                                            </Fragment>
+                                        ))}
+                                    </div>
+
+                                    <div className="tracker-order-footer">
+                                        <span className={"tracker-paid-tag" + (isPaid ? " paid" : "")}>
+                                            {isPaid ? "✓ Paid" : "Payment pending"}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="sheet-footer">
+                    <button className="confirm-btn" style={{ background: themeColor, width: "100%" }} onClick={onClose}>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ============================================================
+// ITEM DETAIL BOTTOM SHEET — buttons stay green for non-veg too
 // ============================================================
 function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
     const [detail, setDetail] = useState(null);
@@ -19,10 +160,7 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
         fetch(`${API_BASE}/api/item/${itemId}`)
             .then(res => res.json())
             .then(data => {
-                if (!cancelled) {
-                    setDetail(data);
-                    setLoading(false);
-                }
+                if (!cancelled) { setDetail(data); setLoading(false); }
             })
             .catch(() => { if (!cancelled) setLoading(false); });
         return () => { cancelled = true; };
@@ -55,7 +193,8 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
     };
 
     const isVeg = detail?.item?.is_veg;
-    const vegColor = isVeg ? "#4CAF50" : "#e53935";
+    const buttonColor = "#4CAF50";                          // always green for buttons
+    const indicatorColor = isVeg ? "#4CAF50" : "#e53935";   // red ONLY for non-veg indicator
 
     return (
         <div className="sheet-backdrop" onClick={onClose}>
@@ -79,12 +218,12 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
                                     </div>
                                 </div>
                                 <div className="veg-indicator-row">
-                                    <div className="veg-box" style={{ borderColor: vegColor }}>
+                                    <div className="veg-box" style={{ borderColor: indicatorColor }}>
                                         {isVeg
-                                            ? <div className="veg-circle" style={{ background: vegColor }} />
-                                            : <div className="nonveg-triangle" style={{ borderBottomColor: vegColor }} />}
+                                            ? <div className="veg-circle" style={{ background: indicatorColor }} />
+                                            : <div className="nonveg-triangle" style={{ borderBottomColor: indicatorColor }} />}
                                     </div>
-                                    <span className="veg-text" style={{ color: vegColor }}>
+                                    <span className="veg-text" style={{ color: indicatorColor }}>
                                         {isVeg ? "Vegetarian" : "Non-vegetarian"}
                                     </span>
                                 </div>
@@ -105,18 +244,13 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
                                                     {group.options.map(opt => {
                                                         const sel = isSelected(group.id, opt.id);
                                                         return (
-                                                            <button
-                                                                key={opt.id}
-                                                                className="addon-pill"
+                                                            <button key={opt.id} className="addon-pill"
                                                                 style={sel ? {
-                                                                    borderColor: vegColor,
-                                                                    color: vegColor,
-                                                                    background: isVeg
-                                                                        ? "rgba(76,175,80,0.1)"
-                                                                        : "rgba(229,57,53,0.1)"
+                                                                    borderColor: buttonColor,
+                                                                    color: buttonColor,
+                                                                    background: "rgba(76,175,80,0.1)"
                                                                 } : {}}
-                                                                onClick={() => toggleAddon(group, opt)}
-                                                            >
+                                                                onClick={() => toggleAddon(group, opt)}>
                                                                 {opt.name}
                                                                 {Number(opt.extra_price) > 0 && (
                                                                     <span className="pill-extra"> +₹{opt.extra_price}</span>
@@ -134,10 +268,10 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
                         <div className="sheet-footer">
                             <div className="sheet-btn-row">
                                 <button className="sheet-btn-back"
-                                    style={{ borderColor: "#4CAF50", color: "#4CAF50" }}
+                                    style={{ borderColor: buttonColor, color: buttonColor }}
                                     onClick={onClose}>← Back</button>
                                 <button className="sheet-btn-add"
-                                    style={{ borderColor: vegColor, color: vegColor }}
+                                    style={{ borderColor: buttonColor, color: buttonColor }}
                                     onClick={handleAdd}>Add to order →</button>
                             </div>
                         </div>
@@ -151,14 +285,14 @@ function ItemSheet({ itemId, onClose, onAddToCart, themeColor }) {
 }
 
 // ============================================================
-// ORDER SUMMARY (cart review)
+// ORDER SUMMARY — redesigned cart line items, 0.5% digital fee
 // ============================================================
 function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConfirm, placingOrder, specialInstructions, setSpecialInstructions }) {
     const subtotal = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
     const cgst = +(subtotal * 0.025).toFixed(2);
     const sgst = +(subtotal * 0.025).toFixed(2);
-    const serviceCharge = +(subtotal * 0.05).toFixed(2);
-    const grandTotal = +(subtotal + cgst + sgst + serviceCharge).toFixed(2);
+    const platformFee = +(subtotal * 0.005).toFixed(2);                // 0.5% digital platform fee
+    const grandTotal = +(subtotal + cgst + sgst + platformFee).toFixed(2);
     const totalItems = cart.reduce((sum, c) => sum + c.qty, 0);
 
     if (cart.length === 0) {
@@ -190,41 +324,51 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
 
             <div className="summary-section">
                 <div className="section-label" style={{ color: themeColor }}>YOUR ITEMS · {totalItems}</div>
-                <div className="summary-items">
-                    {cart.map(c => (
-                        <div className="summary-item" key={c.key}>
-                            <div className="summary-item-main">
-                                <div className="summary-item-name">{c.name}</div>
+                <div className="cart-lines">
+                    {cart.map(c => {
+                        const vegC = c.is_veg ? "#4CAF50" : "#e53935";
+                        return (
+                            <div className="cart-line" key={c.key}>
+                                <div className="cart-line-head">
+                                    <div className="veg-box-sm" style={{ borderColor: vegC }}>
+                                        {c.is_veg
+                                            ? <div className="veg-circle-sm" style={{ background: vegC }} />
+                                            : <div className="nonveg-tri-sm" style={{ borderBottomColor: vegC }} />}
+                                    </div>
+                                    <div className="cart-line-name">{c.name}</div>
+                                    <div className="cart-line-total" style={{ color: themeColor }}>
+                                        ₹ {(c.price * c.qty).toFixed(0)}
+                                    </div>
+                                </div>
                                 {c.addons && c.addons.length > 0 && (
-                                    <div className="summary-item-addons">
-                                        {c.addons.map(a => a.name).join(' · ')}
+                                    <div className="cart-line-addons">
+                                        + {c.addons.map(a => a.name).join(' · ')}
                                     </div>
                                 )}
-                                <div className="summary-item-price-row">
-                                    <span className="summary-unit-price">₹ {c.price} each</span>
-                                    <div className="summary-qty-ctrl">
-                                        <button style={{ color: themeColor }} onClick={() => onUpdateQty(c.key, -1)} disabled={placingOrder}>−</button>
+                                <div className="cart-line-foot">
+                                    <span className="cart-line-unit">₹ {c.price} each</span>
+                                    <div className="qty-mini">
+                                        <button style={{ color: themeColor }}
+                                            onClick={() => onUpdateQty(c.key, -1)}
+                                            disabled={placingOrder}>−</button>
                                         <span>{c.qty}</span>
-                                        <button style={{ color: themeColor }} onClick={() => onUpdateQty(c.key, +1)} disabled={placingOrder}>+</button>
+                                        <button style={{ color: themeColor }}
+                                            onClick={() => onUpdateQty(c.key, +1)}
+                                            disabled={placingOrder}>+</button>
                                     </div>
                                 </div>
                             </div>
-                            <div className="summary-item-total" style={{ color: themeColor }}>₹ {c.price * c.qty}</div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
             <div className="summary-section">
                 <div className="section-label" style={{ color: themeColor }}>SPECIAL INSTRUCTIONS</div>
-                <textarea
-                    className="instructions-input"
+                <textarea className="instructions-input"
                     placeholder="Any allergies, spice level, or special requests for the chef?"
-                    value={specialInstructions}
-                    onChange={e => setSpecialInstructions(e.target.value)}
-                    disabled={placingOrder}
-                    rows={3}
-                />
+                    value={specialInstructions} onChange={e => setSpecialInstructions(e.target.value)}
+                    disabled={placingOrder} rows={3} />
             </div>
 
             <div className="summary-section">
@@ -233,13 +377,13 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
                     <div className="bill-row"><span>Item subtotal</span><span>₹ {subtotal.toFixed(2)}</span></div>
                     <div className="bill-row"><span>CGST (2.5%)</span><span>₹ {cgst.toFixed(2)}</span></div>
                     <div className="bill-row"><span>SGST (2.5%)</span><span>₹ {sgst.toFixed(2)}</span></div>
-                    <div className="bill-row"><span>Service charge (5%)</span><span>₹ {serviceCharge.toFixed(2)}</span></div>
+                    <div className="bill-row"><span>Digital platform fee (0.5%)</span><span>₹ {platformFee.toFixed(2)}</span></div>
                     <div className="bill-row total-row">
                         <span>Grand total</span>
                         <span style={{ color: themeColor }}>₹ {grandTotal.toFixed(2)}</span>
                     </div>
                 </div>
-                <p className="bill-note">Inclusive of all taxes · Service charge is optional and discretionary</p>
+                <p className="bill-note">Inclusive of all taxes</p>
             </div>
 
             <div className="summary-footer-spacer" />
@@ -249,10 +393,9 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
                         <span className="summary-footer-count">{totalItems} {totalItems === 1 ? "item" : "items"}</span>
                         <span className="summary-footer-total">₹ {grandTotal.toFixed(2)}</span>
                     </div>
-                    <button
-                        className="confirm-btn"
+                    <button className="confirm-btn"
                         style={{ background: themeColor, opacity: placingOrder ? 0.6 : 1 }}
-                        onClick={() => onConfirm(grandTotal, subtotal, cgst + sgst, serviceCharge)}
+                        onClick={() => onConfirm(grandTotal, subtotal, cgst + sgst, platformFee)}
                         disabled={placingOrder}>
                         {placingOrder ? "Placing order..." : "Confirm order →"}
                     </button>
@@ -263,13 +406,15 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
 }
 
 // ============================================================
-// ACTION HUB (post-order: 6 main + 3 secondary actions)
+// ACTION HUB — awaiting-aware title; Cash + Pay with card labels
 // ============================================================
-function ActionHub({ orderResult, tableInfo, themeColor, completedTotal, onAction, onBackToMenu, paidStatus }) {
+function ActionHub({ order, tableInfo, themeColor, completedTotal, onAction, onBackToMenu, paidStatus }) {
+    const isAwaiting = !order?.order_no || order?.status === "awaiting";
+
     const mainActions = [
         { id: 'pay_card', icon: '💳', title: 'Pay now', desc: 'Pay online by card', highlight: true, disabled: paidStatus === 'paid' },
-        { id: 'pay_later', icon: '🕐', title: 'Pay after dining', desc: 'Settle at end of meal', disabled: paidStatus === 'paid' },
-        { id: 'tap_to_pay', icon: '📲', title: 'Tap to pay', desc: 'Staff brings card machine', disabled: paidStatus === 'paid' },
+        { id: 'cash_at_counter', icon: '💵', title: 'Cash', desc: 'Waiter will collect cash', disabled: paidStatus === 'paid' },
+        { id: 'tap_to_pay', icon: '📲', title: 'Pay with card', desc: 'Staff brings card machine', disabled: paidStatus === 'paid' },
         { id: 'call_staff', icon: '🔔', title: 'Call staff', desc: 'Get a server\'s attention' },
         { id: 'add_review', icon: '⭐', title: 'Add review', desc: 'Rate your meal' },
         { id: 'report_issue', icon: '⚠️', title: 'Report issue', desc: 'Problem with food or service' },
@@ -284,18 +429,25 @@ function ActionHub({ orderResult, tableInfo, themeColor, completedTotal, onActio
     return (
         <div className="action-page">
             <div className="action-success-card" style={{ borderColor: `${themeColor}55`, background: `${themeColor}0d` }}>
-                <div className="success-icon-sm" style={{ background: themeColor, color: "#0a0a0a" }}>✓</div>
+                <div className="success-icon-sm" style={{ background: themeColor, color: "#0a0a0a" }}>
+                    {isAwaiting ? "⏳" : "✓"}
+                </div>
                 <div className="action-success-body">
-                    <div className="action-success-title">Order placed</div>
+                    <div className="action-success-title">
+                        {isAwaiting ? "Order received" : "Order placed"}
+                    </div>
                     <div className="action-success-sub">
-                        Kitchen received order <strong style={{ color: themeColor }}>#{orderResult.order_no}</strong>
+                        {isAwaiting
+                            ? "Order under review by staff"
+                            : <>Kitchen received order <strong style={{ color: themeColor }}>#{order.order_no}</strong></>
+                        }
                     </div>
                 </div>
             </div>
 
             <div className="action-meta-row">
                 <div><span>TABLE</span><strong>{tableInfo.table_number}</strong></div>
-                <div><span>ORDER</span><strong>#{orderResult.order_no}</strong></div>
+                <div><span>ORDER</span><strong>{order?.order_no ? `#${order.order_no}` : "Pending"}</strong></div>
                 <div><span>TOTAL</span><strong style={{ color: themeColor }}>₹ {completedTotal.toFixed(2)}</strong></div>
             </div>
 
@@ -308,8 +460,7 @@ function ActionHub({ orderResult, tableInfo, themeColor, completedTotal, onActio
             <div className="section-label" style={{ color: themeColor, marginTop: 24 }}>WHAT'S NEXT?</div>
             <div className="action-grid">
                 {mainActions.map(a => (
-                    <button
-                        key={a.id}
+                    <button key={a.id}
                         className={"action-card" + (a.highlight ? " action-card-highlight" : "") + (a.disabled ? " action-card-disabled" : "")}
                         style={a.highlight && !a.disabled ? { borderColor: themeColor } : {}}
                         onClick={() => !a.disabled && onAction(a.id)}
@@ -341,14 +492,13 @@ function ActionHub({ orderResult, tableInfo, themeColor, completedTotal, onActio
 }
 
 // ============================================================
-// CARD PAYMENT FORM
+// CARD PAYMENT FORM — save-card checkbox removed
 // ============================================================
 function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
     const [number, setNumber] = useState("");
     const [name, setName] = useState("");
     const [expiry, setExpiry] = useState("");
     const [cvv, setCvv] = useState("");
-    const [saveCard, setSaveCard] = useState(false);
     const [errors, setErrors] = useState({});
 
     const formatNumber = (v) => v.replace(/\D/g, "").slice(0, 16).replace(/(\d{4})/g, "$1 ").trim();
@@ -414,8 +564,7 @@ function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
 
             <div className="form-section">
                 <label className="form-label">Card number</label>
-                <input
-                    className={"form-input" + (errors.number ? " form-input-error" : "")}
+                <input className={"form-input" + (errors.number ? " form-input-error" : "")}
                     type="text" inputMode="numeric" placeholder="1234 5678 9012 3456"
                     value={number} onChange={e => setNumber(formatNumber(e.target.value))}
                     disabled={submitting} autoComplete="cc-number" />
@@ -424,8 +573,7 @@ function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
 
             <div className="form-section">
                 <label className="form-label">Cardholder name</label>
-                <input
-                    className={"form-input" + (errors.name ? " form-input-error" : "")}
+                <input className={"form-input" + (errors.name ? " form-input-error" : "")}
                     type="text" placeholder="As printed on card"
                     value={name} onChange={e => setName(e.target.value)}
                     disabled={submitting} autoComplete="cc-name" />
@@ -435,8 +583,7 @@ function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
             <div className="form-row">
                 <div className="form-section" style={{ flex: 1 }}>
                     <label className="form-label">Expiry</label>
-                    <input
-                        className={"form-input" + (errors.expiry ? " form-input-error" : "")}
+                    <input className={"form-input" + (errors.expiry ? " form-input-error" : "")}
                         type="text" inputMode="numeric" placeholder="MM/YY"
                         value={expiry} onChange={e => setExpiry(formatExpiry(e.target.value))}
                         disabled={submitting} autoComplete="cc-exp" />
@@ -444,8 +591,7 @@ function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
                 </div>
                 <div className="form-section" style={{ flex: 1 }}>
                     <label className="form-label">CVV</label>
-                    <input
-                        className={"form-input" + (errors.cvv ? " form-input-error" : "")}
+                    <input className={"form-input" + (errors.cvv ? " form-input-error" : "")}
                         type="password" inputMode="numeric" placeholder="•••"
                         value={cvv} maxLength={4}
                         onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
@@ -454,20 +600,14 @@ function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
                 </div>
             </div>
 
-            <label className="checkbox-row">
-                <input type="checkbox" checked={saveCard} onChange={e => setSaveCard(e.target.checked)} disabled={submitting} />
-                <span>Save card for faster checkout next time</span>
-            </label>
-
             <div className="form-note">
-                🔒 Secure demo payment · Card details never leave your device.<br />
+                🔒 Secure demo payment · Card details are not stored anywhere.<br />
                 Real payment processing via Stripe / Razorpay will be added soon.
             </div>
 
             <div className="form-footer-spacer" />
             <div className="form-footer">
-                <button
-                    className="confirm-btn"
+                <button className="confirm-btn"
                     style={{ background: themeColor, opacity: submitting ? 0.6 : 1, width: "100%" }}
                     onClick={handleSubmit} disabled={submitting}>
                     {submitting ? "Processing..." : `Pay ₹ ${amount.toFixed(2)}`}
@@ -478,7 +618,7 @@ function CardPaymentForm({ amount, themeColor, onBack, onSubmit, submitting }) {
 }
 
 // ============================================================
-// STAR RATING + REVIEW FORM
+// STAR RATING + REVIEW FORM — category ratings & tags removed
 // ============================================================
 function StarRating({ value, onChange, size = "md", color }) {
     return (
@@ -493,26 +633,14 @@ function StarRating({ value, onChange, size = "md", color }) {
     );
 }
 
-const TAG_SUGGESTIONS = [
-    "Tasty", "Fresh", "Generous portions", "Quick service",
-    "Friendly staff", "Cozy ambience", "Great value",
-    "Will return", "Authentic flavors", "Hot & fresh"
-];
-
 function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }) {
     const [overall, setOverall] = useState(0);
-    const [food, setFood] = useState(0);
-    const [service, setService] = useState(0);
-    const [ambience, setAmbience] = useState(0);
-    const [value, setValue] = useState(0);
     const [comment, setComment] = useState("");
     const [name, setName] = useState("");
     const [recommend, setRecommend] = useState(null);
-    const [selectedTags, setSelectedTags] = useState([]);
     const [itemRatings, setItemRatings] = useState({});
     const [error, setError] = useState("");
 
-    const toggleTag = (tag) => setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
     const setItemRating = (id, r) => setItemRatings(prev => ({ ...prev, [id]: r }));
 
     const uniqueItemMap = {};
@@ -528,14 +656,14 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
 
         onSubmit({
             overall_rating: overall,
-            food_rating: food || null,
-            service_rating: service || null,
-            ambience_rating: ambience || null,
-            value_rating: value || null,
+            food_rating: null,
+            service_rating: null,
+            ambience_rating: null,
+            value_rating: null,
             comment: comment.trim() || null,
             customer_name: name.trim() || null,
             would_recommend: recommend,
-            tags: selectedTags.length ? selectedTags.join(",") : null,
+            tags: null,
             item_ratings
         });
     };
@@ -554,30 +682,6 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
                 <div className="rating-label">{overallLabel}</div>
             </div>
 
-            <div className="form-section">
-                <label className="form-label">Rate by category</label>
-                <div className="rating-rows">
-                    <div className="rating-row"><span>Food quality</span><StarRating value={food} onChange={setFood} color={themeColor} /></div>
-                    <div className="rating-row"><span>Service</span><StarRating value={service} onChange={setService} color={themeColor} /></div>
-                    <div className="rating-row"><span>Ambience</span><StarRating value={ambience} onChange={setAmbience} color={themeColor} /></div>
-                    <div className="rating-row"><span>Value for money</span><StarRating value={value} onChange={setValue} color={themeColor} /></div>
-                </div>
-            </div>
-
-            <div className="form-section">
-                <label className="form-label">What did you love? <span className="form-label-opt">(optional)</span></label>
-                <div className="tag-chips">
-                    {TAG_SUGGESTIONS.map(tag => (
-                        <button key={tag} type="button"
-                            className={"tag-chip" + (selectedTags.includes(tag) ? " tag-chip-selected" : "")}
-                            style={selectedTags.includes(tag) ? {
-                                borderColor: themeColor, color: themeColor, background: `${themeColor}18`
-                            } : {}}
-                            onClick={() => toggleTag(tag)}>{tag}</button>
-                    ))}
-                </div>
-            </div>
-
             {uniqueItems.length > 0 && (
                 <div className="form-section">
                     <label className="form-label">Rate each dish <span className="form-label-opt">(optional)</span></label>
@@ -594,8 +698,7 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
 
             <div className="form-section">
                 <label className="form-label">Tell us more <span className="form-label-opt">(optional)</span></label>
-                <textarea
-                    className="instructions-input" rows={4}
+                <textarea className="instructions-input" rows={4}
                     placeholder="What stood out? What could be better?"
                     value={comment} onChange={e => setComment(e.target.value)} disabled={submitting} />
             </div>
@@ -609,13 +712,11 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
             <div className="form-section">
                 <label className="form-label">Would you recommend us?</label>
                 <div className="toggle-row">
-                    <button
-                        className={"toggle-btn" + (recommend === true ? " toggle-btn-active" : "")}
+                    <button className={"toggle-btn" + (recommend === true ? " toggle-btn-active" : "")}
                         style={recommend === true ? { borderColor: "#4CAF50", color: "#4CAF50", background: "rgba(76,175,80,0.1)" } : {}}
                         onClick={() => setRecommend(true)} disabled={submitting}>👍 Yes</button>
-                    <button
-                        className={"toggle-btn" + (recommend === false ? " toggle-btn-active" : "")}
-                        style={recommend === false ? { borderColor: "#e53935", color: "#e53935", background: "rgba(229,57,53,0.1)" } : {}}
+                    <button className={"toggle-btn" + (recommend === false ? " toggle-btn-active" : "")}
+                        style={recommend === false ? { borderColor: "#4CAF50", color: "#4CAF50", background: "rgba(76,175,80,0.06)" } : {}}
                         onClick={() => setRecommend(false)} disabled={submitting}>👎 No</button>
                 </div>
             </div>
@@ -624,8 +725,7 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
 
             <div className="form-footer-spacer" />
             <div className="form-footer">
-                <button
-                    className="confirm-btn"
+                <button className="confirm-btn"
                     style={{ background: themeColor, opacity: submitting ? 0.6 : 1, width: "100%" }}
                     onClick={handleSubmit} disabled={submitting}>
                     {submitting ? "Submitting..." : "Submit review"}
@@ -691,8 +791,7 @@ function ReportIssueForm({ themeColor, onBack, onSubmit, submitting }) {
 
             <div className="form-section">
                 <label className="form-label">Describe what happened</label>
-                <textarea
-                    className="instructions-input" rows={5}
+                <textarea className="instructions-input" rows={5}
                     placeholder="The more detail you share, the faster we can fix it"
                     value={description} onChange={e => setDescription(e.target.value)} disabled={submitting} />
             </div>
@@ -708,8 +807,7 @@ function ReportIssueForm({ themeColor, onBack, onSubmit, submitting }) {
 
             <div className="form-footer-spacer" />
             <div className="form-footer">
-                <button
-                    className="confirm-btn"
+                <button className="confirm-btn"
                     style={{ background: themeColor, opacity: submitting ? 0.6 : 1, width: "100%" }}
                     onClick={handleSubmit} disabled={submitting}>
                     {submitting ? "Sending..." : "Send to staff"}
@@ -720,29 +818,7 @@ function ReportIssueForm({ themeColor, onBack, onSubmit, submitting }) {
 }
 
 // ============================================================
-// CONFIRMATION SCREEN (generic)
-// ============================================================
-function ConfirmationScreen({ confirmation, themeColor, onBackToHub, onBackToMenu }) {
-    return (
-        <div className="confirmation-page">
-            <div className="confirmation-icon" style={{ color: themeColor, borderColor: themeColor }}>
-                {confirmation.icon || "✓"}
-            </div>
-            <h1 className="confirmation-title">{confirmation.title}</h1>
-            <p className="confirmation-sub">{confirmation.subtitle}</p>
-            {confirmation.note && <p className="confirmation-note">{confirmation.note}</p>}
-            <div className="confirmation-actions">
-                <button className="confirm-btn" style={{ background: themeColor }} onClick={onBackToHub}>
-                    Back to dashboard
-                </button>
-                <button className="back-btn-center" onClick={onBackToMenu}>Or place a new order →</button>
-            </div>
-        </div>
-    );
-}
-
-// ============================================================
-// LOADING / INVALID TOKEN
+// LOADING / INVALID
 // ============================================================
 function InvalidToken() {
     return (
@@ -768,19 +844,32 @@ function App() {
     const [activeCategory, setActiveCategory] = useState(null);
     const [openItemId, setOpenItemId] = useState(null);
 
-    const [view, setView] = useState("menu");              // menu | summary | actions
-    const [actionView, setActionView] = useState("hub");   // hub | card_form | review_form | issue_form | confirmation
+    const [view, setView] = useState("menu");
+    const [actionView, setActionView] = useState("hub");
     const [placingOrder, setPlacingOrder] = useState(false);
     const [actionSubmitting, setActionSubmitting] = useState(false);
     const [orderResult, setOrderResult] = useState(null);
     const [specialInstructions, setSpecialInstructions] = useState("");
 
-    // Snapshot of order at time of placing (so review/payment screens still know what was ordered)
     const [completedItems, setCompletedItems] = useState([]);
     const [completedTotal, setCompletedTotal] = useState(0);
     const [paidStatus, setPaidStatus] = useState("unpaid");
 
-    const [confirmation, setConfirmation] = useState(null);
+    const [activeOrders, setActiveOrders] = useState([]);
+    const [showTracker, setShowTracker] = useState(false);
+
+    const [toasts, setToasts] = useState([]);
+    const [heroSlide, setHeroSlide] = useState(0);
+
+    // Toast helper
+    const showToast = ({ icon, title, message, kind = "success", duration = 3500 }) => {
+        const id = Date.now() + Math.random();
+        setToasts(prev => [...prev, { id, icon, title, message, kind }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+        }, duration);
+    };
+    const dismissToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
     // Step 1: resolve token → table info
     useEffect(() => {
@@ -817,6 +906,47 @@ function App() {
         return () => { cancelled = true; };
     }, [tableInfo]);
 
+    // Hero carousel auto-rotate every 4 seconds
+    useEffect(() => {
+        const imgs = tableInfo?.hero_images || [];
+        if (imgs.length <= 1) return;
+        const id = setInterval(() => setHeroSlide(i => (i + 1) % imgs.length), 4000);
+        return () => clearInterval(id);
+    }, [tableInfo?.hero_images]);
+
+    // Poll active orders every 5 seconds for tracker
+    useEffect(() => {
+        if (!tableInfo) return;
+        const token = new URLSearchParams(window.location.search).get("token");
+        if (!token) return;
+        let cancelled = false;
+        const fetchActive = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/table/${token}/active-orders`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!cancelled) setActiveOrders(data);
+            } catch { /* silent */ }
+        };
+        fetchActive();
+        const id = setInterval(fetchActive, 5000);
+        return () => { cancelled = true; clearInterval(id); };
+    }, [tableInfo]);
+
+    // Sync orderResult with latest active-order data (status updates etc.)
+    useEffect(() => {
+        if (!orderResult?.order_id) return;
+        const live = activeOrders.find(o => o.order_id === orderResult.order_id);
+
+        if (live && JSON.stringify(live) !== JSON.stringify(orderResult)) {
+            setTimeout(() => {
+                setOrderResult(prev => ({ ...prev, ...live }));
+                if (live.payment_status === "paid") setPaidStatus("paid");
+            }, 0);
+        }
+        // eslint-disable-next-line
+    }, [activeOrders]);
+
     const addToCart = (item, addons, addonsTotal) => {
         const key = item.id + "_" + addons.map(a => a.id).join("_");
         const existing = cart.find(c => c.key === key);
@@ -824,7 +954,7 @@ function App() {
             setCart(cart.map(c => c.key === key ? { ...c, qty: c.qty + 1 } : c));
         } else {
             setCart([...cart, {
-                key, id: item.id, name: item.name,
+                key, id: item.id, name: item.name, is_veg: item.is_veg,
                 basePrice: Number(item.price),
                 addonsTotal, price: Number(item.price) + addonsTotal,
                 addons, qty: 1
@@ -849,7 +979,7 @@ function App() {
         setCart(prev => prev.map(c => c.key === key ? { ...c, qty: c.qty + delta } : c).filter(c => c.qty > 0));
     };
 
-    const confirmOrder = async (grandTotal, subtotal, taxAmount, serviceCharge) => {
+    const confirmOrder = async (grandTotal, subtotal, taxAmount, platformFee) => {
         if (!tableInfo || placingOrder) return;
         setPlacingOrder(true);
         const orderData = {
@@ -859,12 +989,10 @@ function App() {
             total_amount: grandTotal,
             subtotal,
             tax_amount: taxAmount,
-            service_charge: serviceCharge,
+            service_charge: platformFee,
             special_instructions: specialInstructions,
             items: cart.map(c => ({
-                item_id: c.id,
-                quantity: c.qty,
-                price: c.price,
+                item_id: c.id, quantity: c.qty, price: c.price,
                 addons: c.addons ? c.addons.map(a => a.id) : []
             }))
         };
@@ -885,17 +1013,14 @@ function App() {
             setActionView("hub");
             window.scrollTo({ top: 0, behavior: "smooth" });
         } catch (err) {
-            alert("Error placing order. Please try again.");
+            showToast({ kind: "error", icon: "✕", title: "Could not place order", message: "Please try again." });
             console.error(err);
         } finally {
             setPlacingOrder(false);
         }
     };
 
-    const backToMenu = () => {
-        setView("menu");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+    const backToMenu = () => { setView("menu"); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
     const fullResetToMenu = () => {
         setView("menu");
@@ -903,7 +1028,6 @@ function App() {
         setOrderResult(null);
         setCompletedItems([]);
         setCompletedTotal(0);
-        setConfirmation(null);
         setPaidStatus("unpaid");
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -914,8 +1038,7 @@ function App() {
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
-    // ── Action handlers ──
-
+    // Action handlers — all toast-based
     const sendServiceRequest = async (type, opts) => {
         setActionSubmitting(true);
         try {
@@ -933,15 +1056,10 @@ function App() {
                 })
             });
             if (!res.ok) throw new Error("Request failed");
-            setConfirmation({
-                icon: opts.icon || "✓",
-                title: opts.successTitle,
-                subtitle: opts.successSub,
-                note: opts.successNote
-            });
-            setActionView("confirmation");
+            showToast({ icon: opts.icon, title: opts.successTitle, message: opts.successSub });
+            if (opts.backToHub) setActionView("hub");
         } catch (err) {
-            alert("Could not send request. Please try again.");
+            showToast({ kind: "error", icon: "✕", title: "Could not send request", message: "Please try again." });
             console.error(err);
         } finally {
             setActionSubmitting(false);
@@ -959,27 +1077,18 @@ function App() {
                     restaurant_id: tableInfo.restaurant_id,
                     branch_id: tableInfo.branch_id,
                     table_id: tableInfo.table_id,
-                    method,
-                    amount: completedTotal,
-                    ...cardDetails
+                    method, amount: completedTotal, ...cardDetails
                 })
             });
             if (!res.ok) throw new Error("Payment failed");
-            const data = await res.json();
-            // Update paid status if card_online
+            await res.json();
             if (method === "card_online") setPaidStatus("paid");
             else if (method === "pay_later") setPaidStatus("pay_later");
             else setPaidStatus("pending");
-
-            setConfirmation({
-                icon: opts.icon || "✓",
-                title: opts.successTitle,
-                subtitle: opts.successSub,
-                note: opts.successNote
-            });
-            setActionView("confirmation");
+            showToast({ icon: opts.icon, title: opts.successTitle, message: opts.successSub });
+            setActionView("hub");
         } catch (err) {
-            alert("Payment could not be recorded. Please try again.");
+            showToast({ kind: "error", icon: "✕", title: "Payment could not be recorded", message: "Please try again." });
             console.error(err);
         } finally {
             setActionSubmitting(false);
@@ -1001,15 +1110,10 @@ function App() {
                 })
             });
             if (!res.ok) throw new Error("Submit failed");
-            setConfirmation({
-                icon: "⭐",
-                title: "Thank you!",
-                subtitle: "Your review helps us get better",
-                note: "We read every piece of feedback."
-            });
-            setActionView("confirmation");
+            showToast({ icon: "⭐", title: "Thank you!", message: "Your review helps us improve." });
+            setActionView("hub");
         } catch (err) {
-            alert("Could not submit review. Please try again.");
+            showToast({ kind: "error", icon: "✕", title: "Could not submit review", message: "Please try again." });
             console.error(err);
         } finally {
             setActionSubmitting(false);
@@ -1022,7 +1126,8 @@ function App() {
             priority: issueData.priority,
             icon: issueData.priority === "urgent" ? "🚨" : "⚠️",
             successTitle: issueData.priority === "urgent" ? "Help is on the way" : "Reported to staff",
-            successSub: "A team member will be with you shortly to resolve this"
+            successSub: "A team member will be with you shortly",
+            backToHub: true
         });
     };
 
@@ -1030,8 +1135,7 @@ function App() {
         sendPayment("card_online", {
             icon: "✓",
             successTitle: "Payment successful",
-            successSub: `₹ ${completedTotal.toFixed(2)} paid · card ending ${cardDetails.card_last4}`,
-            successNote: "Enjoy your meal!"
+            successSub: `₹ ${completedTotal.toFixed(2)} paid · card ending ${cardDetails.card_last4}`
         }, cardDetails);
     };
 
@@ -1041,34 +1145,32 @@ function App() {
             case "pay_card": setActionView("card_form"); break;
             case "add_review": setActionView("review_form"); break;
             case "report_issue": setActionView("issue_form"); break;
-            case "pay_later":
-                sendPayment("pay_later", {
-                    icon: "🕐",
-                    successTitle: "Pay at end of meal",
-                    successSub: "We've marked your order for end-of-meal billing",
-                    successNote: "Just let your server know when you're ready to settle."
+            case "cash_at_counter":
+                sendPayment("cash_at_counter", {
+                    icon: "💵",
+                    successTitle: "Waiter has been called",
+                    successSub: "A team member is coming to collect cash"
                 });
                 break;
             case "tap_to_pay":
                 sendPayment("tap_at_table", {
                     icon: "📲",
                     successTitle: "Card machine on the way",
-                    successSub: "A staff member is bringing the POS machine to your table",
-                    successNote: "This usually takes 1–2 minutes."
+                    successSub: "A staff member is bringing the POS machine"
                 });
                 break;
             case "call_staff":
                 sendServiceRequest("call_staff", {
                     icon: "🔔",
                     successTitle: "Staff notified",
-                    successSub: "A server will be with you in a moment"
+                    successSub: "A server will be with you shortly"
                 });
                 break;
             case "request_bill":
                 sendServiceRequest("request_bill", {
                     icon: "🧾",
                     successTitle: "Bill requested",
-                    successSub: "Your bill is being prepared and will be brought over"
+                    successSub: "Your bill is being prepared"
                 });
                 break;
             case "water_refill":
@@ -1082,7 +1184,7 @@ function App() {
                 sendServiceRequest("extra_cutlery", {
                     icon: "🍴",
                     successTitle: "Cutlery on the way",
-                    successSub: "Extra plates and utensils coming right up"
+                    successSub: "Extra utensils coming right up"
                 });
                 break;
             default: break;
@@ -1093,94 +1195,79 @@ function App() {
     if (tokenStatus === "invalid") return <InvalidToken />;
 
     const themeColor = tableInfo?.theme_color || "#D4AF37";
+    const heroImages = (tableInfo?.hero_images && tableInfo.hero_images.length > 0)
+        ? tableInfo.hero_images
+        : [tableInfo?.hero_image_url || "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=1600&q=80"];
+
+    // Tracker visible on menu + action hub (not on forms or summary)
+    const trackerVisibleHere = view === "menu" || (view === "actions" && actionView === "hub");
+    const hasActiveOrders = activeOrders.length > 0;
+    const trackerOnScreen = trackerVisibleHere && hasActiveOrders;
 
     // ── Summary view ──
     if (view === "summary") {
         return (
-            <OrderSummary
-                cart={cart}
-                tableInfo={tableInfo}
-                themeColor={themeColor}
-                onBack={backToMenu}
-                onUpdateQty={updateQty}
-                onConfirm={confirmOrder}
-                placingOrder={placingOrder}
-                specialInstructions={specialInstructions}
-                setSpecialInstructions={setSpecialInstructions}
-            />
+            <>
+                <OrderSummary
+                    cart={cart} tableInfo={tableInfo} themeColor={themeColor}
+                    onBack={backToMenu} onUpdateQty={updateQty} onConfirm={confirmOrder}
+                    placingOrder={placingOrder}
+                    specialInstructions={specialInstructions}
+                    setSpecialInstructions={setSpecialInstructions}
+                />
+                <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+            </>
         );
     }
 
     // ── Action views ──
     if (view === "actions") {
+        let body;
         if (actionView === "card_form") {
-            return (
-                <CardPaymentForm
-                    amount={completedTotal}
-                    themeColor={themeColor}
-                    onBack={() => setActionView("hub")}
-                    onSubmit={submitCardPayment}
-                    submitting={actionSubmitting}
-                />
-            );
+            body = <CardPaymentForm amount={completedTotal} themeColor={themeColor}
+                onBack={() => setActionView("hub")} onSubmit={submitCardPayment}
+                submitting={actionSubmitting} />;
+        } else if (actionView === "review_form") {
+            body = <ReviewForm completedItems={completedItems} themeColor={themeColor}
+                onBack={() => setActionView("hub")} onSubmit={submitReview}
+                submitting={actionSubmitting} />;
+        } else if (actionView === "issue_form") {
+            body = <ReportIssueForm themeColor={themeColor}
+                onBack={() => setActionView("hub")} onSubmit={submitIssue}
+                submitting={actionSubmitting} />;
+        } else {
+            body = <ActionHub order={orderResult} tableInfo={tableInfo}
+                themeColor={themeColor} completedTotal={completedTotal}
+                paidStatus={paidStatus} onAction={handleAction}
+                onBackToMenu={fullResetToMenu} />;
         }
-        if (actionView === "review_form") {
-            return (
-                <ReviewForm
-                    completedItems={completedItems}
-                    themeColor={themeColor}
-                    onBack={() => setActionView("hub")}
-                    onSubmit={submitReview}
-                    submitting={actionSubmitting}
-                />
-            );
-        }
-        if (actionView === "issue_form") {
-            return (
-                <ReportIssueForm
-                    themeColor={themeColor}
-                    onBack={() => setActionView("hub")}
-                    onSubmit={submitIssue}
-                    submitting={actionSubmitting}
-                />
-            );
-        }
-        if (actionView === "confirmation") {
-            return (
-                <ConfirmationScreen
-                    confirmation={confirmation}
-                    themeColor={themeColor}
-                    onBackToHub={() => setActionView("hub")}
-                    onBackToMenu={fullResetToMenu}
-                />
-            );
-        }
-        // default: hub
         return (
-            <ActionHub
-                orderResult={orderResult}
-                tableInfo={tableInfo}
-                themeColor={themeColor}
-                completedTotal={completedTotal}
-                paidStatus={paidStatus}
-                onAction={handleAction}
-                onBackToMenu={fullResetToMenu}
-            />
+            <>
+                {body}
+                {trackerOnScreen && (
+                    <OrderTrackerMini orders={activeOrders} themeColor={themeColor}
+                        onClick={() => setShowTracker(true)} bottomOffset={0} />
+                )}
+                {showTracker && (
+                    <OrderTrackerSheet orders={activeOrders} themeColor={themeColor}
+                        onClose={() => setShowTracker(false)} />
+                )}
+                <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+            </>
         );
     }
 
     // ── Menu view ──
+    const cartBarBottom = trackerOnScreen ? 60 : 0;
     return (
         <div className="app">
             <div className="hero">
-                <div className="hero-bg" style={{
-                    backgroundImage: `url('${tableInfo.hero_image_url || "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=1200&q=80"}')`
-                }} />
+                <HeroCarousel images={heroImages} current={heroSlide} />
                 <div className="hero-overlay" />
-                <div className="hero-content">
+                <div className="hero-content hero-centered">
                     <span className="restaurant-tag" style={{ color: themeColor }}>{tableInfo.restaurant_name}</span>
                     <h1 className="hero-title">{tableInfo.branch_subtitle || tableInfo.branch_name}</h1>
-                    <p className="hero-sub">{tableInfo.tagline}</p>
+                    {tableInfo.tagline && <p className="hero-sub">{tableInfo.tagline}</p>}
                     <div className="table-badge" style={{ background: `${themeColor}18`, borderColor: `${themeColor}55` }}>
                         <span className="table-dot" style={{ background: themeColor }} />
                         <span style={{ color: themeColor }}>{tableInfo.table_number} &nbsp;·&nbsp; Dine in</span>
@@ -1209,29 +1296,46 @@ function App() {
                         <div className="items-grid">
                             {cat.items.map(item => {
                                 const qty = getQty(item.id);
-                                const vegColor = item.is_veg ? "#4CAF50" : "#e53935";
+                                const indicatorColor = item.is_veg ? "#4CAF50" : "#e53935";
+                                const outOfStock = item.is_available === false;
                                 return (
-                                    <div className="item-card" key={item.id} onClick={() => setOpenItemId(item.id)}>
+                                    <div className={"item-card" + (outOfStock ? " item-card-disabled" : "")}
+                                        key={item.id}
+                                        onClick={() => {
+                                            if (outOfStock) {
+                                                showToast({ icon: "🚫", title: "Out of stock", message: `${item.name} is unavailable right now.` });
+                                                return;
+                                            }
+                                            setOpenItemId(item.id);
+                                        }}>
                                         <div className="item-img-wrap">
                                             {item.image
                                                 ? <img src={item.image} alt={item.name} className="item-img" />
                                                 : <div className="item-img-placeholder" />}
+                                            {outOfStock && (
+                                                <div className="out-of-stock-overlay">Out of stock</div>
+                                            )}
                                         </div>
                                         <div className="item-body">
                                             <div className="item-name-row">
-                                                <div className="veg-box-sm" style={{ borderColor: vegColor }}>
+                                                <div className="veg-box-sm" style={{ borderColor: indicatorColor }}>
                                                     {item.is_veg
-                                                        ? <div className="veg-circle-sm" style={{ background: vegColor }} />
-                                                        : <div className="nonveg-tri-sm" style={{ borderBottomColor: vegColor }} />}
+                                                        ? <div className="veg-circle-sm" style={{ background: indicatorColor }} />
+                                                        : <div className="nonveg-tri-sm" style={{ borderBottomColor: indicatorColor }} />}
                                                 </div>
                                                 <span className="item-name">{item.name}</span>
                                             </div>
-                                            <span className="item-desc">Tap to view &amp; customise</span>
+                                            <span className="item-desc">
+                                                {outOfStock ? "Currently unavailable" : "Tap to view & customise"}
+                                            </span>
                                             <div className="item-footer">
                                                 <span className="item-price" style={{ color: themeColor }}>₹ {item.price}</span>
                                                 <div className="item-action" onClick={e => e.stopPropagation()}>
-                                                    {qty === 0 ? (
-                                                        <button className="add-btn" style={{ background: themeColor }} onClick={() => setOpenItemId(item.id)}>+</button>
+                                                    {outOfStock ? (
+                                                        <span className="out-of-stock-pill">Unavailable</span>
+                                                    ) : qty === 0 ? (
+                                                        <button className="add-btn" style={{ background: themeColor }}
+                                                            onClick={() => setOpenItemId(item.id)}>+</button>
                                                     ) : (
                                                         <div className="qty-ctrl">
                                                             <button style={{ color: themeColor }} onClick={() => {
@@ -1253,10 +1357,10 @@ function App() {
                 ))}
             </div>
 
-            {cart.length > 0 && <div className="sticky-spacer" />}
+            {(cart.length > 0 || trackerOnScreen) && <div className="sticky-spacer" style={{ height: (cart.length > 0 ? 80 : 0) + (trackerOnScreen ? 60 : 0) }} />}
 
             {cart.length > 0 && (
-                <div className="sticky-bar">
+                <div className="sticky-bar" style={{ bottom: cartBarBottom }}>
                     <div className="sticky-inner">
                         <div className="sticky-info">
                             <span className="sticky-count">{totalItems} {totalItems === 1 ? "item" : "items"}</span>
@@ -1269,9 +1373,21 @@ function App() {
                 </div>
             )}
 
+            {trackerOnScreen && (
+                <OrderTrackerMini orders={activeOrders} themeColor={themeColor}
+                    onClick={() => setShowTracker(true)} bottomOffset={0} />
+            )}
+
+            {showTracker && (
+                <OrderTrackerSheet orders={activeOrders} themeColor={themeColor}
+                    onClose={() => setShowTracker(false)} />
+            )}
+
             {openItemId && (
                 <ItemSheet itemId={openItemId} onClose={() => setOpenItemId(null)} onAddToCart={addToCart} themeColor={themeColor} />
             )}
+
+            <ToastContainer toasts={toasts} onDismiss={dismissToast} />
         </div>
     );
 }
