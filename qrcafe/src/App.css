@@ -68,7 +68,7 @@ body {
 .app {
     min-height: 100vh;
     background: var(--bg);
-    width: 100%
+    position: static; /* 🔥 IMPORTANT */
 }
 
 /* ─── HERO (centered text, slideshow background) ─── */
@@ -492,23 +492,28 @@ body {
         text-align: center
     }
 
+body {
+    position: relative;
+}
+
 /* ─── STICKY BAR ─── */
 .sticky-spacer {
     height: 60px;
 }
 
 .sticky-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100vw; /* 🔥 FIX */
-    padding: 12px 16px;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
     background: #111;
     border-top: 1px solid #2a2a2a;
+    padding: 12px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 300; /* ABOVE EVERYTHING */
+    z-index: 9999; /* 🔥 VERY IMPORTANT */
 }
 
 .sticky-inner {
@@ -632,7 +637,7 @@ body {
     position: fixed;
     bottom: 0;
     left: 50%;
-    transform: translateX(-50%);
+    
     width: 100%;
     max-width: 420px; /* 👈 THIS CONTROLS WIDTH */
     height: 70vh; /* 👈 THIS CONTROLS HEIGHT */
@@ -1805,7 +1810,7 @@ body {
     position: fixed;
     top: 20px;
     left: 50%;
-    transform: translateX(-50%);
+    
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -1881,7 +1886,7 @@ body {
     position: fixed;
     bottom: 75px; /* 👈 ABOVE PLACE ORDER BAR */
     left: 50%;
-    transform: translateX(-50%);
+    
     width: auto;
     max-width: 260px;
     padding: 10px 16px;
@@ -2181,7 +2186,7 @@ body {
     position: fixed;
     bottom: 75px; /* 👈 ABOVE PLACE ORDER BAR */
     left: 50%;
-    transform: translateX(-50%);
+    
     width: auto;
     max-width: 260px;
     padding: 10px 16px;
