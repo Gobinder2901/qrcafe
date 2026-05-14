@@ -112,14 +112,14 @@ function OrderTrackerSheet({ orders, themeColor, onClose }) {
                                 <div
                                     key={order.order_id}
                                     className="tracker-order-card"
-                                    onClick={() => openOrderDashboard(order)}
+                                    
                                 >
 
                                     {/* HEADER */}
                                     <div
                                         key={order.order_id}
                                         className="tracker-order-card"
-                                        onClick={() => openOrderDashboard(order)}
+                                        
                                     >
 
                                         {/* HEADER */}

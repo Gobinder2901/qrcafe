@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\dhill\\source\\repos\\qrcafe\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|c:\\users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\app.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|solutionrelative:qrcafe\\src\\app.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|c:\\users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|solutionrelative:qrcafe\\src\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|c:\\users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\app.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|solutionrelative:qrcafe\\src\\app.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3C725FB7-B1B2-C754-1E6A-5E85266116A2}|qrcafe\\qrcafe.esproj|c:\\users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
@@ -38,17 +38,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "App.css",
               "DocumentMoniker": "C:\\Users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\App.css",
               "RelativeDocumentMoniker": "qrcafe\\src\\App.css",
               "ToolTip": "C:\\Users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\App.css",
               "RelativeToolTip": "qrcafe\\src\\App.css",
-              "ViewState": "AgIAANsIAAAAAAAAAAAswOMIAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAGEIAAAAAAAAAAAvwHQIAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2026-05-04T17:06:39.26Z",
               "EditorCaption": ""
@@ -115,13 +115,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "App.jsx",
               "DocumentMoniker": "C:\\Users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\App.jsx",
               "RelativeDocumentMoniker": "qrcafe\\src\\App.jsx",
               "ToolTip": "C:\\Users\\dhill\\source\\repos\\qrcafe\\qrcafe\\src\\App.jsx",
               "RelativeToolTip": "qrcafe\\src\\App.jsx",
-              "ViewState": "AgIAACQAAAAAAAAAAAAhwC4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAhwHIAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
               "WhenOpened": "2026-05-04T17:06:25.185Z",
               "EditorCaption": ""
