@@ -2257,12 +2257,11 @@ body {
 }
 
 /* FORM PAGE */
-.form-page {
-    min-height: 100vh;
-    background: var(--bg);
-    padding: 20px;
-    max-width: 600px;
+.container {
+    width: 100%;
+    max-width: 900px; /* desktop control */
     margin: 0 auto;
+    padding: 0 16px; /* 🔥 important for mobile */
 }
 
 .form-title {
