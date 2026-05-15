@@ -23,15 +23,7 @@ html, body {
 }
 
 /* CARD STYLE (BOOTSTRAP FEEL) */
-.summary-section,
-.action-success-card,
-.cart-line,
-.tracker-order-card {
-    background: #141414;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-}
+
 
 /* SPACING FIX */
 .summary-section,
@@ -896,10 +888,11 @@ body {
 .summary-page {
     min-height: 100vh;
     background: var(--bg);
-    padding: clamp(16px,3vw,32px) clamp(16px,4vw,60px);
-    max-width: 720px;
+    padding: 16px 14px 110px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
-    position: relative
+    position: relative;
 }
 
 .summary-header {
@@ -964,14 +957,15 @@ body {
 /* ─── CART LINE ITEMS (new clean design) ─── */
 .cart-lines {
     background: #141414;
-    border: 0.5px solid var(--border);
-    border-radius: 14px;
-    padding: 4px 16px
+    border: 1px solid #1f1f1f;
+    border-radius: 18px;
+    padding: 8px 14px;
 }
 
 .cart-line {
-    padding: 16px 0;
-    border-bottom: 0.5px solid #1e1e1e
+    padding: 18px 0;
+    border-bottom: 1px solid #1a1a1a;
+    background: transparent;
 }
 
     .cart-line:last-child {
