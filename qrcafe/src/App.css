@@ -164,22 +164,14 @@ body {
     gap: clamp(6px,1vw,12px);
     padding: clamp(10px,1.5vw,18px) clamp(16px,3vw,48px);
     overflow-x: auto;
-    background: var(--bg);
+    background: rgba(10,10,10,0.96);
+    backdrop-filter: blur(10px);
     border-bottom: 0.5px solid var(--border);
     position: sticky;
-    top: -1px;
-    z-index: 10
+    top: 0;
+    z-index: 150;
 }
 
-    .cat-bar::before {
-        content: "";
-        position: absolute;
-        top: -20px;
-        left: 0;
-        right: 0;
-        height: 20px;
-        background: var(--bg);
-    }
 
     .cat-bar::-webkit-scrollbar {
         display: none
