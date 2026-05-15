@@ -973,7 +973,8 @@ body {
     }
 
 .cart-line-head {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 8px;
 }
@@ -983,12 +984,12 @@ body {
     }
 
 .cart-line-name {
-    flex: 1;
     color: #e8e0cc;
     font-size: 15px;
     font-weight: 600;
     line-height: 1.2;
-    margin-top: -1px;
+    text-align: left;
+    justify-self: start;
 }
 
 .cart-line-total {
@@ -1007,7 +1008,8 @@ body {
 
 .cart-line-foot {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 14px;
     align-items: center;
     margin: 6px 0 0 19px;
 }
