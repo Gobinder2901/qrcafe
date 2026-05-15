@@ -2352,17 +2352,20 @@ body {
 }
 
 .bill-info-btn {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    border: 1px solid var(--gold);
+    border: 1px solid #fff;
     background: transparent;
-    color: var(--gold);
-    font-size: 11px;
+    color: #fff;
+    font-size: 8px;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    line-height: 1;
 }
 
 .bill-popup-card {
