@@ -2,12 +2,9 @@
 
 html, body {
     width: 100%;
-    overflow-x: clip; /* clip instead of hidden — doesn't break sticky */
+    overflow-x: clip;
 }
-
-.app {
-    overflow-x: clip; /* belt and suspenders */
-}
+/* (no overflow on .app — it was breaking sticky) */
 
 /* GLOBAL PAGE LAYOUT FIX */
 .summary-page,
@@ -170,15 +167,31 @@ body {
     overflow-x: auto;
     overflow-y: visible;
     border-bottom: 0.5px solid var(--border);
-    background: rgba(10, 10, 10, 0.92); /* slightly translucent so it feels "floating" */
-    backdrop-filter: blur(10px); /* nice blur under it when scrolling */
-    -webkit-backdrop-filter: blur(10px);
-    position: -webkit-sticky; /* Safari fallback */
-    position: sticky;
-    top: 0;
-    z-index: 50; /* well above menu (1-10), well below sheet (200) */
+    background: var(--bg);
+    z-index: 50;
+    transition: background 0.2s ease;
 }
 
+.cat-bar-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 10, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: catBarSlideDown 0.22s ease-out;
+}
+
+@keyframes catBarSlideDown {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
 
 
 

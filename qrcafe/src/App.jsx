@@ -1028,6 +1028,10 @@ function App() {
 
     const [toasts, setToasts] = useState([]);
     const [heroSlide, setHeroSlide] = useState(0);
+    const [catBarStuck, setCatBarStuck] = useState(false);
+    const [catBarHeight, setCatBarHeight] = useState(0);
+    const heroRef = useRef(null);
+    const catBarRef = useRef(null);
 
     // Toast helper
     const showToast = ({ icon, title, message, kind = "success", duration = 3500 }) => {
@@ -1083,6 +1087,26 @@ function App() {
         const id = setInterval(() => setHeroSlide(i => (i + 1) % imgs.length), 4000);
         return () => clearInterval(id);
     }, [tableInfo?.hero_images]);
+
+    // Stick the cat-bar to the top once the hero scrolls out of view
+    useEffect(() => {
+        if (!tableInfo) return;
+
+        // measure cat-bar height once so we can reserve space when it goes fixed
+        if (catBarRef.current) {
+            setCatBarHeight(catBarRef.current.offsetHeight);
+        }
+
+        const handleScroll = () => {
+            if (!heroRef.current) return;
+            const heroBottom = heroRef.current.getBoundingClientRect().bottom;
+            setCatBarStuck(heroBottom <= 0);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll(); // run once on mount
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [tableInfo, menu]);
 
     // Poll active orders every 5 seconds for tracker
     useEffect(() => {
@@ -1454,7 +1478,7 @@ function App() {
     const cartBarBottom = trackerOnScreen ? 60 : 0;
     return (
         <div className="app">
-            <div className="hero">
+            <div className="hero" ref={heroRef}>
                 <HeroCarousel images={heroImages} current={heroSlide} />
                 <div className="hero-overlay" />
                 <div className="hero-content hero-centered">
@@ -1468,7 +1492,10 @@ function App() {
                 </div>
             </div>
 
-            <div className="cat-bar">
+            {/* spacer that ONLY exists when cat-bar is fixed, so layout doesn't jump */}
+            {catBarStuck && <div style={{ height: catBarHeight }} />}
+
+            <div ref={catBarRef} className={"cat-bar" + (catBarStuck ? " cat-bar-fixed" : "")}>
                 {menu.map((cat, i) => (
                     <button key={i}
                         className={"cat-pill" + (activeCategory === cat.category ? " active" : "")}
