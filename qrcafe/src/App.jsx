@@ -1445,7 +1445,7 @@ function App() {
 
             {(cart.length > 0 || trackerOnScreen) && <div className="sticky-spacer" style={{ height: (cart.length > 0 ? 80 : 0) + (trackerOnScreen ? 60 : 0) }} />}
 
-            {cart.length > 0 && (
+            {cart.length > 0 && !openItemId && (
                 <div className="sticky-bar" style={{ bottom: cartBarBottom }}>
                     <div className="sticky-inner">
                         <div className="sticky-info">
