@@ -369,6 +369,7 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
     const platformFee = +(subtotal * 0.005).toFixed(2);                // 0.5% digital platform fee
     const grandTotal = +(subtotal + cgst + sgst + platformFee).toFixed(2);
     const totalItems = cart.reduce((sum, c) => sum + c.qty, 0);
+    const [showFeeInfo, setShowFeeInfo] = useState(false);
 
     if (cart.length === 0) {
         return (
@@ -450,9 +451,22 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
                 <div className="section-label" style={{ color: themeColor }}>BILL DETAILS</div>
                 <div className="bill-rows">
                     <div className="bill-row"><span>Item subtotal</span><span>₹ {subtotal.toFixed(2)}</span></div>
-                    <div className="bill-row"><span>CGST (2.5%)</span><span>₹ {cgst.toFixed(2)}</span></div>
-                    <div className="bill-row"><span>SGST (2.5%)</span><span>₹ {sgst.toFixed(2)}</span></div>
-                    <div className="bill-row"><span>Digital platform fee (0.5%)</span><span>₹ {platformFee.toFixed(2)}</span></div>
+                    <div className="bill-row">
+                        <span className="bill-info-row">
+                            Taxes & fees
+
+                            <button
+                                className="bill-info-btn"
+                                onClick={() => setShowFeeInfo(true)}
+                            >
+                                i
+                            </button>
+                        </span>
+
+                        <span>
+                            ₹ {(cgst + sgst + platformFee).toFixed(2)}
+                        </span>
+                    </div>
                     <div className="bill-row total-row">
                         <span>Grand total</span>
                         <span style={{ color: themeColor }}>₹ {grandTotal.toFixed(2)}</span>
@@ -460,6 +474,63 @@ function OrderSummary({ cart, tableInfo, themeColor, onBack, onUpdateQty, onConf
                 </div>
                 <p className="bill-note">Inclusive of all taxes</p>
             </div>
+
+            {showFeeInfo && (
+                <div className="sheet-backdrop" onClick={() => setShowFeeInfo(false)}>
+
+                    <div
+                        className="bottom-sheet"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="sheet-handle" />
+
+                        <div className="sheet-scroll">
+                            <div className="sheet-body">
+
+                                <h2 className="tracker-sheet-title">
+                                    Taxes & fees
+                                </h2>
+
+                                <p className="tracker-sheet-sub">
+                                    Transparent pricing breakdown
+                                </p>
+
+                                <div className="bill-popup-card">
+
+                                    <div className="bill-popup-row">
+                                        <span>CGST (2.5%)</span>
+                                        <span>₹ {cgst.toFixed(2)}</span>
+                                    </div>
+
+                                    <div className="bill-popup-row">
+                                        <span>SGST (2.5%)</span>
+                                        <span>₹ {sgst.toFixed(2)}</span>
+                                    </div>
+
+                                    <div className="bill-popup-row">
+                                        <span>Digital platform fee (0.5%)</span>
+                                        <span>₹ {platformFee.toFixed(2)}</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="sheet-footer">
+                            <button
+                                className="confirm-btn"
+                                style={{ background: themeColor, width: "100%" }}
+                                onClick={() => setShowFeeInfo(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+            )}
 
             <div className="summary-footer-spacer" />
             <div className="summary-footer">
