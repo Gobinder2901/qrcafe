@@ -167,9 +167,19 @@ body {
     background: var(--bg);
     border-bottom: 0.5px solid var(--border);
     position: sticky;
-    top: 0;
+    top: -1px;
     z-index: 10
 }
+
+    .cat-bar::before {
+        content: "";
+        position: absolute;
+        top: -20px;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: var(--bg);
+    }
 
     .cat-bar::-webkit-scrollbar {
         display: none
