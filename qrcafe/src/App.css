@@ -1717,11 +1717,10 @@ body {
 
 .item-rate-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 10px 0;
-    border-bottom: 0.5px solid #1e1e1e
+    padding: 12px 0;
+    border-bottom: 0.5px solid #1e1e1e;
 }
 
     .item-rate-row:last-child {
@@ -1730,9 +1729,21 @@ body {
 
 .item-rate-name {
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
     flex: 1;
-    min-width: 0
+    min-width: 0;
+    text-align: left;
+}
+
+.item-rate-img {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
 }
 
 .toggle-row {

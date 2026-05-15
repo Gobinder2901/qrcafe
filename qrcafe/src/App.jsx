@@ -830,14 +830,36 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
 
             {uniqueItems.length > 0 && (
                 <div className="form-section">
-                    <label className="form-label">Rate each dish <span className="form-label-opt">(optional)</span></label>
+                    <label className="form-label">
+                        Rate each dish <span className="form-label-opt">(optional)</span>
+                    </label>
+
                     <div className="item-rate-list">
+
                         {uniqueItems.map(it => (
+
                             <div key={it.id} className="item-rate-row">
-                                <span className="item-rate-name">{it.name}</span>
-                                <StarRating value={itemRatings[it.id] || 0} onChange={r => setItemRating(it.id, r)} color={themeColor} />
+
+                                <img
+                                    src={it.image}
+                                    alt={it.name}
+                                    className="item-rate-img"
+                                />
+
+                                <div className="item-rate-name">
+                                    {it.name}
+                                </div>
+
+                                <StarRating
+                                    value={itemRatings[it.id] || 0}
+                                    onChange={r => setItemRating(it.id, r)}
+                                    color={themeColor}
+                                />
+
                             </div>
+
                         ))}
+
                     </div>
                 </div>
             )}
