@@ -2,7 +2,11 @@
 
 html, body {
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip; /* clip instead of hidden — doesn't break sticky */
+}
+
+.app {
+    overflow-x: clip; /* belt and suspenders */
 }
 
 /* GLOBAL PAGE LAYOUT FIX */
@@ -164,11 +168,15 @@ body {
     gap: clamp(6px,1vw,12px);
     padding: clamp(10px,1.5vw,18px) clamp(16px,3vw,48px);
     overflow-x: auto;
+    overflow-y: visible;
     border-bottom: 0.5px solid var(--border);
-    background: var(--bg);
+    background: rgba(10, 10, 10, 0.92); /* slightly translucent so it feels "floating" */
+    backdrop-filter: blur(10px); /* nice blur under it when scrolling */
+    -webkit-backdrop-filter: blur(10px);
+    position: -webkit-sticky; /* Safari fallback */
     position: sticky;
     top: 0;
-    z-index: 10
+    z-index: 50; /* well above menu (1-10), well below sheet (200) */
 }
 
 

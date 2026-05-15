@@ -1118,8 +1118,9 @@ function App() {
 
 
     useEffect(() => {
-        document.body.style.overflow = showTracker ? "hidden" : "auto";
-    }, [showTracker]);
+        const lock = showTracker || !!openItemId;
+        document.body.style.overflow = lock ? "hidden" : "auto";
+    }, [showTracker, openItemId]);
 
     // Sync orderResult with latest active-order data (status updates etc.)
     useEffect(() => {
