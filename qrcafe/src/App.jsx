@@ -841,7 +841,7 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
                             <div key={it.id} className="item-rate-row">
 
                                 <img
-                                    src={it.image}
+                                    src={it.image_url || it.image || it.img}
                                     alt={it.name}
                                     className="item-rate-img"
                                 />
