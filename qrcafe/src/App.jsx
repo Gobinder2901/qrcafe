@@ -841,7 +841,7 @@ function ReviewForm({ completedItems, themeColor, onBack, onSubmit, submitting }
                             <div key={it.id} className="item-rate-row">
 
                                 <img
-                                    src={it.image_url || it.image || it.img}
+                                    src={it.image}
                                     alt={it.name}
                                     className="item-rate-img"
                                 />
@@ -1129,7 +1129,7 @@ function App() {
             setCart(cart.map(c => c.key === key ? { ...c, qty: c.qty + 1 } : c));
         } else {
             setCart([...cart, {
-                key, id: item.id, name: item.name, is_veg: item.is_veg,
+                key, id: item.id, name: item.name, is_veg: item.is_veg, image: item.image,
                 basePrice: Number(item.price),
                 addonsTotal, price: Number(item.price) + addonsTotal,
                 addons, qty: 1
