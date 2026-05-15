@@ -80,7 +80,7 @@ function OrderTrackerMini({ orders, themeColor, onClick, bottomOffset }) {
 // ============================================================
 
 const STAGES = [
-    { id: "placed", label: "Placed" },
+    { id: "awaiting", label: "Placed" },
     { id: "confirmed", label: "Confirmed" },
     { id: "cooking", label: "Cooking" },
     { id: "served", label: "Served" }
@@ -1095,7 +1095,20 @@ function App() {
                 const res = await fetch(`${API_BASE}/api/table/${token}/active-orders`);
                 if (!res.ok) return;
                 const data = await res.json();
-                if (!cancelled) setActiveOrders(data);
+                const filteredOrders = (data || []).filter(o => {
+
+                    const served =
+                        (o.status || "").toLowerCase() === "served";
+
+                    const paid =
+                        (o.payment_status || "").toLowerCase() === "paid";
+
+                    // remove ONLY when served + paid
+                    return !(served && paid);
+                });
+
+                if (!cancelled)
+                    setActiveOrders(filteredOrders);
             } catch { /* silent */ }
         };
         fetchActive();
