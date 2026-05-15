@@ -62,7 +62,9 @@ body {
 .app {
     min-height: 100vh;
     background: var(--bg);
-    width: 100%
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
 }
 
 /* ─── HERO (centered text, slideshow background) ─── */
@@ -164,12 +166,13 @@ body {
     gap: clamp(6px,1vw,12px);
     padding: clamp(10px,1.5vw,18px) clamp(16px,3vw,48px);
     overflow-x: auto;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 500;
     background: rgba(10,10,10,0.96);
     backdrop-filter: blur(10px);
     border-bottom: 0.5px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 150;
 }
 
 
@@ -199,7 +202,8 @@ body {
 
 /* ─── MENU BODY ─── */
 .menu-body {
-    padding: 8px clamp(12px,3vw,48px) 24px
+    padding: 8px clamp(12px,3vw,48px) 24px;
+    overflow: visible;
 }
 
 .cat-section {
